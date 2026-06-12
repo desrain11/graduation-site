@@ -1,0 +1,15 @@
+Title: The EYE: Teaching FRT
+
+Time：2024.10-2025.8
+
+Project Type: Student team project
+
+Role: UI/UX Designer
+
+Location: TU Campus, Eindhoven, Netherlands
+
+Client: -
+
+EA Involved：Technology & Realization/Creativity & Aesthetics/User & Society
+
+Abstract: THE EYE is an educational game designed for Dutch high school students, aiming to raise awareness about the risks and limitations of Facial Recognition Technology (FRT). Players act as secret agents using the fictional agency software “THE EYE” to identify potential suspects in narrative-driven tasks. The game incorporates real-world cases of FRT bias—such as racial or gender misidentification—to challenge players' perceptions and encourage critical thinking.

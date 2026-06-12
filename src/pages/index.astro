@@ -1,0 +1,79 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { formatProjectDate, getProjectsByCategory, getSectionText } from '../lib/content';
+
+const { main, course, extracurricular } = getProjectsByCategory();
+const identityText = getSectionText('identity');
+const visionText = getSectionText('vision');
+const expertiseText = getSectionText('expertise-areas');
+const developmentText = getSectionText('development');
+---
+
+<Layout>
+	<!--
+		骨架页：验证内容管线用，非最终设计。
+		最终结构 = 封面 + 5 个全屏板块（PI&V / Project / Expertise Areas / Development / Contract），
+		板块间为带阻尼的整页滚动切换。
+	-->
+	<div class="snap-container">
+		<section id="cover" class="snap-section">
+			<h1>YUNFEI HU</h1>
+			<p>ACADEMIC PORTFOLIO · Industrial Design · Master · 2024-2026</p>
+			<nav>
+				<a href="#piv">PI&V</a> · <a href="#project">Project</a> ·
+				<a href="#expertise">Expertise Areas</a> · <a href="#development">Development</a> ·
+				<a href="#contract">Contract</a>
+			</nav>
+		</section>
+
+		<section id="piv" class="snap-section">
+			<h2>PI&V</h2>
+			<h3>Identity</h3>
+			<p>{identityText || '（待填写 public/content/identity.txt）'}</p>
+			<h3>Vision</h3>
+			<p>{visionText || '（待填写 public/content/vision.txt）'}</p>
+		</section>
+
+		<section id="project" class="snap-section">
+			<h2>Project</h2>
+
+			<h3>Main ({main.length})</h3>
+			<ul>
+				{main.map((project) => (
+					<li>
+						[{project.info.milestone}] {project.info.title} — {formatProjectDate(project.info.time)}
+					</li>
+				))}
+			</ul>
+
+			<h3>Course ({course.length})</h3>
+			<ul>
+				{course.map((project) => (
+					<li>{project.info.title} — {formatProjectDate(project.info.time)}</li>
+				))}
+			</ul>
+
+			<h3>Extracurricular ({extracurricular.length})</h3>
+			<ul>
+				{extracurricular.map((project) => (
+					<li>{project.info.title} — {formatProjectDate(project.info.time)}</li>
+				))}
+			</ul>
+		</section>
+
+		<section id="expertise" class="snap-section">
+			<h2>Expertise Areas</h2>
+			<p>{expertiseText || '（待填写 public/content/expertise-areas.txt）'}</p>
+		</section>
+
+		<section id="development" class="snap-section">
+			<h2>Development</h2>
+			<p>{developmentText || '（待填写 public/content/development.txt）'}</p>
+		</section>
+
+		<section id="contract" class="snap-section">
+			<h2>Contract</h2>
+			<p>Eindhoven, the Netherlands · © 2026 Yunfei Hu. All rights reserved.</p>
+		</section>
+	</div>
+</Layout>

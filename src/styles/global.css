@@ -1,0 +1,49 @@
+/*
+ * 设计 token —— 当前为按截图取的近似值，待从 Figma 变量中核准后替换。
+ * 设计稿基准宽度 1440px，整页缩放方式与旧站一致（--stage-scale）。
+ */
+:root {
+	/* TODO: 以下颜色为近似值，待与设计稿核对 */
+	--color-cheese: #ffc93c;        /* 封面奶酪黄 */
+	--color-cheese-deep: #f5a623;   /* 奶酪洞/阴影 */
+	--color-ink: #1f1e1a;           /* 主文字黑 */
+	--color-sidebar: #35332c;       /* 内页侧边栏深色 */
+	--color-panel: #fff6d8;         /* 内页内容浅黄面板 */
+	--color-panel-text: #2b2a25;
+	--color-muted: #8d8a7e;
+
+	--stage-scale: 1;
+	--sidebar-width: 280px;
+
+	/* TODO: 字体待定 —— 设计稿中标题字体需用户确认 */
+	--font-display: 'Inter', 'Segoe UI', sans-serif;
+	--font-body: 'Inter', 'Segoe UI', sans-serif;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	margin: 0;
+	font-family: var(--font-body);
+	color: var(--color-ink);
+	background: var(--color-cheese);
+}
+
+/* 全屏板块：占位实现，正式版会换成带阻尼的 JS 翻页 */
+.snap-container {
+	height: 100dvh;
+	overflow-y: auto;
+	scroll-snap-type: y proximity;
+}
+
+.snap-section {
+	min-height: 100dvh;
+	scroll-snap-align: start;
+	position: relative;
+}

@@ -1,0 +1,15 @@
+Title: TacoTask - A Homework Task Management Tool for Children and their Parents
+
+Time：2025.2 - 2025.6
+
+Project Type: Individual design research project,
+
+Role: UX researcher
+
+Location: Eindhoven, The Netherlands
+
+Client: -
+
+EA Involved：Technology & Realization/Creativity & Aesthetics/User & Society/Business & Entrepreneurship/Math, Data & Computing
+
+Abstract: TacoTask is a hybrid homework management system that combines a mobile application with tangible components to support collaborative homework planning and execution in primary school families. The design focuses on children’s cognitive development and family interaction dynamics, aiming to explore the effectiveness of co-constructed planning and time visualization strategies in real-life homework contexts.
