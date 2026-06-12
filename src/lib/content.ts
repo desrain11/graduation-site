@@ -258,6 +258,17 @@ export function getSectionText(name: string) {
 		.filter((paragraph) => Boolean(paragraph) && !paragraph.startsWith('（在此粘贴'));
 }
 
+/** EA 名称 → 色条代码（颜色见全局样式 .ea-*） */
+export function getEaCode(eaName: string) {
+	const normalized = eaName.toLowerCase();
+	if (normalized.includes('creativity')) return 'ca';
+	if (normalized.includes('technology')) return 'tr';
+	if (normalized.includes('user')) return 'us';
+	if (normalized.includes('business')) return 'be';
+	if (normalized.includes('math') || normalized.includes('data')) return 'mdc';
+	return 'default';
+}
+
 export function formatProjectDate(time: string) {
 	const matches = Array.from(time.matchAll(/(\d{4})[./-](\d{1,2})/g));
 	if (matches.length === 0) return time;

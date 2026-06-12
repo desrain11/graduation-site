@@ -1,31 +1,19 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Sidebar from '../components/Sidebar.astro';
-import { formatProjectDate, getProjectsByCategory, getSectionText } from '../lib/content';
+import { formatProjectDate, getEaCode, getProjectsByCategory, getSectionText } from '../lib/content';
+import type { Project } from '../lib/content';
 
 const { main, course, extracurricular } = getProjectsByCategory();
 
 const textPages = [
-	{ id: 'identity', group: 'piv', heading: 'Identity', paragraphs: getSectionText('identity') },
-	{ id: 'vision', group: 'piv', heading: 'Vision.', paragraphs: getSectionText('vision') },
+	{ id: 'identity', heading: 'Identity', file: 'identity', paragraphs: getSectionText('identity') },
+	{ id: 'vision', heading: 'Vision.', file: 'vision', paragraphs: getSectionText('vision') },
 ];
 const tailTextPages = [
-	{ id: 'expertise', group: 'expertise', heading: 'Expertise Areas.', paragraphs: getSectionText('expertise-areas') },
-	{ id: 'development', group: 'development', heading: 'Development.', paragraphs: getSectionText('development') },
+	{ id: 'expertise', heading: 'Expertise Areas.', file: 'expertise-areas', paragraphs: getSectionText('expertise-areas') },
+	{ id: 'development', heading: 'Development.', file: 'development', paragraphs: getSectionText('development') },
 ];
-
-const pageNames: Record<string, string> = {
-	cover: 'Cover',
-	identity: 'Identity',
-	vision: 'Vision',
-	'project-main': 'Project / Main',
-	'project-course': 'Project / Course',
-	'project-extracurricular': 'Project / Extracurricular',
-	expertise: 'Expertise Areas',
-	development: 'Development',
-	contract: 'Contract',
-};
-const pageFlow = Object.keys(pageNames);
 
 const coverMenu = [
 	{ label: 'PI&V', target: 'identity' },
@@ -35,11 +23,24 @@ const coverMenu = [
 	{ label: 'Contract', target: 'contract' },
 ];
 
+const projectPages: { id: string; projects: Project[]; useDisplayTitle: boolean }[] = [
+	{ id: 'project-main', projects: main, useDisplayTitle: true },
+	{ id: 'project-course', projects: course, useDisplayTitle: false },
+	{ id: 'project-extracurricular', projects: extracurricular, useDisplayTitle: false },
+];
+
 const contactCards = [
-	{ id: 'wechat', title: 'Wechat', detail: 'blueowl_fifi', qr: '/contact/QR-Wechat.svg' },
-	{ id: 'email', title: 'Email', detail: 'fiahu301@gmail.com', qr: '/contact/QR-Email.svg', href: 'mailto:fiahu301@gmail.com' },
-	{ id: 'linkedin', title: 'Linkedin', detail: 'yunfei-fia-hu', qr: '/contact/QR-Linkedin.svg', href: 'https://www.linkedin.com/in/yunfei-fia-hu-813b8b2b0/' },
-	{ id: 'dribbble', title: 'Dribbble', detail: 'Blueowlfifi', qr: '/contact/QR-Dribble.svg', href: 'https://dribbble.com/Blueowlfifi' },
+	{ id: 'wechat', title: 'Wechat', detail: 'blueowl_fifi', qr: '/contact/QR-Wechat.svg', icon: '/image/ui/Wechat.svg' },
+	{ id: 'email', title: 'Email', detail: 'fiahu301@gmail.com', qr: '/contact/QR-Email.svg', icon: '/image/ui/email.svg', href: 'mailto:fiahu301@gmail.com' },
+	{ id: 'linkedin', title: 'Linkedin', detail: 'yunfei-fia-hu', qr: '/contact/QR-Linkedin.svg', icon: '/image/ui/linkedin.svg', href: 'https://www.linkedin.com/in/yunfei-fia-hu-813b8b2b0/' },
+	{ id: 'dribbble', title: 'Dribbble', detail: 'Blueowlfifi', qr: '/contact/QR-Dribble.svg', icon: '/image/ui/Dribbble.svg', href: 'https://dribbble.com/Blueowlfifi' },
+];
+
+const socialLinks = [
+	{ title: 'Wechat', icon: '/image/ui/Wechat.svg', href: undefined },
+	{ title: 'Dribbble', icon: '/image/ui/Dribbble.svg', href: 'https://dribbble.com/Blueowlfifi' },
+	{ title: 'Email', icon: '/image/ui/email.svg', href: 'mailto:fiahu301@gmail.com' },
+	{ title: 'Linkedin', icon: '/image/ui/linkedin.svg', href: 'https://www.linkedin.com/in/yunfei-fia-hu-813b8b2b0/' },
 ];
 ---
 
@@ -47,11 +48,19 @@ const contactCards = [
 	<div class="site is-cover" data-site>
 		<Sidebar main={main} course={course} extracurricular={extracurricular} />
 
+		<button class="menu-button" type="button" data-menu-button aria-label="Menu">
+			<img src="/image/ui/Menu.svg" alt="" aria-hidden="true" />
+		</button>
+
 		<header class="topbar" data-topbar>
+			<div class="view-toggle" data-view-toggle hidden>
+				<button type="button" data-view-mode="grid" aria-label="Grid view"><img src="/image/ui/Grid.svg" alt="" aria-hidden="true" /></button>
+				<button type="button" data-view-mode="row" aria-label="Row view"><img src="/image/ui/Column.svg" alt="" aria-hidden="true" /></button>
+			</div>
 			<div class="lang-switch" data-lang-switch>
-				<span class="lang-en">EN</span>
-				<span class="lang-divider">|</span>
-				<button class="lang-cn" type="button" aria-label="中文版">中</button>
+				<img class="lang-en" src="/image/ui/EN.svg" alt="English" />
+				<img class="lang-divider" src="/image/ui/CN_EN.svg" alt="" aria-hidden="true" />
+				<button class="lang-cn" type="button" aria-label="中文版"><img src="/image/ui/CN.svg" alt="" aria-hidden="true" /></button>
 				<span class="lang-tip" role="status" aria-live="polite">敬请期待</span>
 			</div>
 		</header>
@@ -74,44 +83,40 @@ const contactCards = [
 						</div>
 					</div>
 
-					<div class="cover-main">
-						<nav class="cover-menu" aria-label="Sections">
-							{coverMenu.map((item) => (
-								<button class="cover-menu-row" type="button" data-cover-link data-nav-target={item.target}>
-									<span>{item.label}</span>
-									<span class="cover-menu-plus" aria-hidden="true">+</span>
-								</button>
-							))}
-						</nav>
+					<img class="cover-photo" src="/image/cover/photo.svg" alt="Portrait of Yunfei Hu" />
 
-						<div class="cover-side">
-							<img class="cover-photo" src="/image/cover/photo.svg" alt="Portrait of Yunfei Hu" />
-							<img class="cover-rat" src="/image/cover/RatOnly.svg" alt="" aria-hidden="true" />
-							<div class="cover-lang" data-cover-lang>
-								<span>EN</span><span class="lang-divider">|</span>
-								<button class="lang-cn" type="button" aria-label="中文版">中</button>
-								<span class="lang-tip" role="status">敬请期待</span>
-							</div>
-							<div class="cover-socials" aria-label="Social links">
-								<a href="https://dribbble.com/Blueowlfifi" target="_blank" rel="noreferrer" title="Dribbble">
-									<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M5 9.5c4.5 1.5 9.5 1 13-2M4.5 14c5-.5 10 1 13.5 5M9 3.5c3 3.5 5.5 9 6.5 16" stroke="currentColor" stroke-width="1.6"/></svg>
-								</a>
-								<a href="mailto:fiahu301@gmail.com" title="Email">
-									<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.6"/></svg>
-								</a>
-								<a href="https://www.linkedin.com/in/yunfei-fia-hu-813b8b2b0/" target="_blank" rel="noreferrer" title="Linkedin">
-									<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 10.5V17M8 7.5v.5M12 17v-4a2.2 2.2 0 0 1 4.4 0V17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-								</a>
-							</div>
+					<nav class="cover-menu" aria-label="Sections">
+						{coverMenu.map((item) => (
+							<button class="cover-menu-row" type="button" data-cover-link data-nav-target={item.target}>
+								<span>{item.label}</span>
+								<img class="cover-menu-star" src="/image/ui/Star.svg" alt="" aria-hidden="true" />
+							</button>
+						))}
+					</nav>
+
+					<div class="cover-corner">
+						<img class="cover-rat" src="/image/cover/RatOnly.svg" alt="" aria-hidden="true" />
+						<div class="lang-switch cover-lang" data-lang-switch>
+							<img class="lang-en" src="/image/ui/EN.svg" alt="English" />
+							<img class="lang-divider" src="/image/ui/CN_EN.svg" alt="" aria-hidden="true" />
+							<button class="lang-cn" type="button" aria-label="中文版"><img src="/image/ui/CN.svg" alt="" aria-hidden="true" /></button>
+							<span class="lang-tip" role="status">敬请期待</span>
+						</div>
+						<div class="cover-socials" aria-label="Social links">
+							{socialLinks.map((social) =>
+								social.href
+									? <a href={social.href} target={social.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer" title={social.title}><img src={social.icon} alt={social.title} /></a>
+									: <span title={social.title}><img src={social.icon} alt={social.title} /></span>
+							)}
 						</div>
 					</div>
 				</div>
 			</section>
 
-			<div class="page-gap"><span>Identity</span></div>
+			<div class="page-gap"><span class="gap-label">Next Page</span><span class="gap-label">Last Page</span></div>
 
 			<!-- ====== Identity / Vision ====== -->
-			{textPages.map((page, index) => (
+			{textPages.map((page) => (
 				<>
 					<section class="page page-content" data-page={page.id}>
 						<div class="page-scroll" data-scroll>
@@ -120,91 +125,50 @@ const contactCards = [
 								<div class="text-columns">
 									{page.paragraphs.length > 0
 										? page.paragraphs.map((paragraph) => <p>{paragraph}</p>)
-										: <p class="placeholder-note">（内容待填写：public/content/{page.id}.txt）</p>}
+										: <p class="placeholder-note">（内容待填写：public/content/{page.file}.txt）</p>}
 								</div>
 							</div>
 						</div>
 					</section>
-					<div class="page-gap"><span>{index === 0 ? 'Vision' : 'Project / Main'}</span></div>
+					<div class="page-gap"><span class="gap-label">Next Page</span><span class="gap-label">Last Page</span></div>
 				</>
 			))}
 
-			<!-- ====== Project / Main ====== -->
-			<section class="page page-content" data-page="project-main">
-				<div class="page-scroll" data-scroll>
-					<div class="page-body">
-						<div class="project-grid">
-							{main.map((project) => (
-								<a class="project-card" href={`/project/${project.slug}/`}>
-									<img src={project.coverImage} alt={`${project.shortTitle} cover`} loading="lazy" draggable="false" />
-									<span class="project-card-bar">
-										<span class="project-card-text">
-											<strong>{project.displayTitle}</strong>
-											<small>{formatProjectDate(project.info.time)}</small>
-										</span>
-										<span class="project-card-more">+ More</span>
-									</span>
-								</a>
-							))}
-							{main.length === 0 && <p class="placeholder-note">（暂无项目：请在 Info.txt 中加 Category: M11/M12/M21/FMP）</p>}
+			<!-- ====== Project 三个分类页 ====== -->
+			{projectPages.map((projectPage) => (
+				<>
+					<section class="page page-content" data-page={projectPage.id}>
+						<div class="page-scroll" data-scroll>
+							<div class="page-body">
+								<div class="project-grid" data-project-grid>
+									{projectPage.projects.map((project) => (
+										<a class="project-card" href={`/project/${project.slug}/`}>
+											<span class="project-card-media">
+												<img src={project.coverImage} alt={`${project.shortTitle} cover`} loading="lazy" draggable="false" />
+											</span>
+											<span class="project-card-bar">
+												<span class="ea-strip" aria-hidden="true">
+													{project.info.eaInvolved.map((ea) => <i class={`ea-${getEaCode(ea)}`} title={ea}></i>)}
+												</span>
+												<span class="project-card-text">
+													<strong>{projectPage.useDisplayTitle ? project.displayTitle : project.shortTitle}</strong>
+													<small>{formatProjectDate(project.info.time)}</small>
+												</span>
+												<span class="project-card-more">+ <u>More</u></span>
+											</span>
+										</a>
+									))}
+									{projectPage.projects.length === 0 && <p class="placeholder-note">（暂无项目：请在 Info.txt 中填写对应 Category）</p>}
+								</div>
+							</div>
 						</div>
-					</div>
-				</div>
-			</section>
-
-			<div class="page-gap"><span>Project / Course</span></div>
-
-			<!-- ====== Project / Course ====== -->
-			<section class="page page-content" data-page="project-course">
-				<div class="page-scroll" data-scroll>
-					<div class="page-body">
-						<div class="project-grid">
-							{course.map((project) => (
-								<a class="project-card" href={`/project/${project.slug}/`}>
-									<img src={project.coverImage} alt={`${project.shortTitle} cover`} loading="lazy" draggable="false" />
-									<span class="project-card-bar">
-										<span class="project-card-text">
-											<strong>{project.shortTitle}</strong>
-											<small>{formatProjectDate(project.info.time)}</small>
-										</span>
-										<span class="project-card-more">+ More</span>
-									</span>
-								</a>
-							))}
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<div class="page-gap"><span>Project / Extracurricular</span></div>
-
-			<!-- ====== Project / Extracurricular ====== -->
-			<section class="page page-content" data-page="project-extracurricular">
-				<div class="page-scroll" data-scroll>
-					<div class="page-body">
-						<div class="project-banner-list">
-							{extracurricular.map((project) => (
-								<a class="project-banner" href={`/project/${project.slug}/`}>
-									<img src={project.coverImage} alt={`${project.shortTitle} cover`} loading="lazy" draggable="false" />
-									<span class="project-card-bar">
-										<span class="project-card-text">
-											<strong>{project.shortTitle}</strong>
-											<small>{formatProjectDate(project.info.time)}</small>
-										</span>
-										<span class="project-card-more">+ More</span>
-									</span>
-								</a>
-							))}
-							{extracurricular.length === 0 && <p class="placeholder-note">（暂无项目：请在 Info.txt 中加 Category: Extracurricular）</p>}
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<div class="page-gap"><span>Expertise Areas</span></div>
+					</section>
+					<div class="page-gap"><span class="gap-label">Next Page</span><span class="gap-label">Last Page</span></div>
+				</>
+			))}
 
 			<!-- ====== Expertise / Development ====== -->
-			{tailTextPages.map((page, index) => (
+			{tailTextPages.map((page) => (
 				<>
 					<section class="page page-content" data-page={page.id}>
 						<div class="page-scroll" data-scroll>
@@ -213,12 +177,12 @@ const contactCards = [
 								<div class="text-columns">
 									{page.paragraphs.length > 0
 										? page.paragraphs.map((paragraph) => <p>{paragraph}</p>)
-										: <p class="placeholder-note">（内容待填写：public/content/{page.id === 'expertise' ? 'expertise-areas' : page.id}.txt）</p>}
+										: <p class="placeholder-note">（内容待填写：public/content/{page.file}.txt）</p>}
 								</div>
 							</div>
 						</div>
 					</section>
-					<div class="page-gap"><span>{index === 0 ? 'Development' : 'Contract'}</span></div>
+					<div class="page-gap"><span class="gap-label">Next Page</span><span class="gap-label">Last Page</span></div>
 				</>
 			))}
 
@@ -230,7 +194,7 @@ const contactCards = [
 							{contactCards.map((card) => (
 								<article class="contact-card">
 									<h3>{card.title}</h3>
-									<div class="scratch-card" data-scratch-card data-card-title={card.title}>
+									<div class="scratch-card" data-scratch-card data-card-icon={card.icon}>
 										<img class="scratch-qr" src={card.qr} alt={`${card.title} QR code`} draggable="false" />
 										<canvas class="scratch-cover" data-scratch-cover></canvas>
 									</div>
@@ -256,6 +220,7 @@ const contactCards = [
 		const pages = Array.from(track.querySelectorAll('.page'));
 		const ids = pages.map((page) => page.dataset.page);
 		const rat = document.querySelector('[data-rat]');
+		const viewToggle = document.querySelector('[data-view-toggle]');
 
 		let active = 0;
 		let flipping = false;
@@ -264,7 +229,8 @@ const contactCards = [
 		const FLIP_MS = 720;
 
 		const GAP = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--page-gap')) || 140;
-		const THRESHOLD = GAP * 0.62; // 拖出超过留白的 62% 才翻页
+		const THRESHOLD = 72;  // 拖出约 72px 即翻页（对应设计稿示意的提示条高度）
+		const RUBBER_K = 240;  // 橡皮筋阻力系数，越小越省力
 
 		const pageTop = (index) => pages[index].offsetTop;
 
@@ -300,6 +266,7 @@ const contactCards = [
 			site.classList.toggle('is-cover', ids[active] === 'cover');
 			history.replaceState(null, '', ids[active] === 'cover' ? window.location.pathname : `#${ids[active]}`);
 			updateSidebarState();
+			updateViewToggle();
 			window.setTimeout(() => {
 				flipping = false;
 				updateRat();
@@ -334,7 +301,7 @@ const contactCards = [
 			overscroll += deltaY;
 
 			// 橡皮筋：拖得越多阻力越大，最多拖出一个留白的距离
-			const eased = GAP * (1 - 1 / (1 + Math.abs(overscroll) / 380));
+			const eased = GAP * (1 - 1 / (1 + Math.abs(overscroll) / RUBBER_K));
 			setTrack(pageTop(active) + direction * eased, false);
 
 			if (eased > THRESHOLD) {
@@ -373,19 +340,63 @@ const contactCards = [
 			if (event.key === 'PageUp') { event.preventDefault(); goTo(active - 1); }
 		});
 
+		// ======== 网格 / 行模式切换（项目页；需在首次 goTo 前就绪） ========
+		const PROJECT_PAGE_IDS = ['project-main', 'project-course', 'project-extracurricular'];
+		const DEFAULT_VIEW_MODE = { 'project-main': 'grid', 'project-course': 'grid', 'project-extracurricular': 'row' };
+
+		function getViewMode(pageId) {
+			return sessionStorage.getItem(`fiahu:view:${pageId}`) ?? DEFAULT_VIEW_MODE[pageId];
+		}
+
+		function applyViewMode(pageId) {
+			const grid = document.querySelector(`[data-page="${pageId}"] [data-project-grid]`);
+			grid?.classList.toggle('is-row-mode', getViewMode(pageId) === 'row');
+		}
+
+		function updateViewToggle() {
+			const id = ids[active];
+			const isProjectPage = PROJECT_PAGE_IDS.includes(id);
+			viewToggle.hidden = !isProjectPage;
+			if (!isProjectPage) return;
+			const mode = getViewMode(id);
+			viewToggle.querySelectorAll('[data-view-mode]').forEach((button) => {
+				button.classList.toggle('is-active', button.dataset.viewMode === mode);
+			});
+		}
+
+		viewToggle.querySelectorAll('[data-view-mode]').forEach((button) => {
+			button.addEventListener('click', () => {
+				const id = ids[active];
+				if (!PROJECT_PAGE_IDS.includes(id)) return;
+				sessionStorage.setItem(`fiahu:view:${id}`, button.dataset.viewMode);
+				applyViewMode(id);
+				updateViewToggle();
+			});
+		});
+
+		PROJECT_PAGE_IDS.forEach(applyViewMode);
+		updateViewToggle();
+
 		// ======== 导航 ========
 		document.querySelectorAll('[data-cover-link], [data-nav-link]').forEach((link) => {
 			link.addEventListener('click', (event) => {
 				const target = link.dataset.navTarget;
 				if (!target) return;
 				event.preventDefault();
+				document.body.classList.remove('menu-open');
 				goTo(ids.indexOf(target));
 			});
 		});
 
-		// 初始定位（支持 /#project-main 之类的深链）
+		// 窄屏菜单按钮
+		document.querySelector('[data-menu-button]')?.addEventListener('click', () => {
+			document.body.classList.toggle('menu-open');
+		});
+
+		// 初始定位（支持 /#project-main 之类的深链；boot-hidden 在定位后移除避免闪封面）
 		const initial = ids.indexOf(decodeURIComponent(window.location.hash.replace(/^#/, '')));
 		if (initial > 0) goTo(initial, false); else updateSidebarState();
+		document.documentElement.removeAttribute('data-boot-hidden');
 
 		window.addEventListener('hashchange', () => {
 			const target = ids.indexOf(decodeURIComponent(window.location.hash.replace(/^#/, '')));
@@ -397,7 +408,7 @@ const contactCards = [
 		// ======== 中文版提示 ========
 		document.querySelectorAll('.lang-cn').forEach((button) => {
 			button.addEventListener('click', () => {
-				const wrap = button.closest('[data-lang-switch], [data-cover-lang]');
+				const wrap = button.closest('[data-lang-switch]');
 				wrap?.classList.add('is-tip-visible');
 				window.setTimeout(() => wrap?.classList.remove('is-tip-visible'), 1600);
 			});
@@ -443,15 +454,28 @@ const contactCards = [
 
 		updateRat();
 
-		// ======== Contract 刮刮卡 ========
+		// ======== Contract 刮刮卡（深色封层 + 浅色图标，刮开见 QR） ========
 		document.querySelectorAll('[data-scratch-card]').forEach((card) => {
 			const canvas = card.querySelector('[data-scratch-cover]');
 			if (!(canvas instanceof HTMLCanvasElement)) return;
 			const context = canvas.getContext('2d', { willReadFrequently: true });
 			if (!context) return;
-			const title = card.dataset.cardTitle ?? '';
+			let iconImage = null;
 			let isScratching = false;
 			let resetTimer;
+
+			const iconSrc = card.dataset.cardIcon;
+			if (iconSrc) {
+				fetch(iconSrc)
+					.then((response) => response.text())
+					.then((svg) => {
+						const recolored = svg.replaceAll('#333333', '#FFF6D7');
+						const image = new Image();
+						image.onload = () => { iconImage = image; drawCover(); };
+						image.src = `data:image/svg+xml;base64,${btoa(recolored)}`;
+					})
+					.catch(() => {});
+			}
 
 			function drawCover() {
 				const size = Math.max(1, Math.round(card.clientWidth));
@@ -464,11 +488,10 @@ const contactCards = [
 				context.globalCompositeOperation = 'source-over';
 				context.fillStyle = '#2c2c2c';
 				context.fillRect(0, 0, size, size);
-				context.fillStyle = '#ffe897';
-				context.font = `${Math.round(size * 0.13)}px Helvetica, sans-serif`;
-				context.textAlign = 'center';
-				context.textBaseline = 'middle';
-				context.fillText(title, size / 2, size / 2);
+				if (iconImage) {
+					const iconSize = size * 0.34;
+					context.drawImage(iconImage, (size - iconSize) / 2, (size - iconSize) / 2, iconSize, iconSize);
+				}
 				card.classList.remove('is-cleared');
 			}
 
@@ -510,75 +533,89 @@ const contactCards = [
 </Layout>
 
 <style is:global>
-	/* ======== 全局布局 ======== */
+	/* ======== 全局布局：纹理铺满整条 track，翻页留白处自然延续 ======== */
 	.site { height: 100dvh; overflow: hidden; position: relative; }
 
-	.track { will-change: transform; }
-
-	.page {
-		height: 100dvh;
-		position: relative;
-		background: var(--paper-texture) center top / cover no-repeat;
+	.track {
+		will-change: transform;
+		background: var(--paper-texture) top center / 100% auto repeat-y;
 	}
 
-	/* 内页比封面浅一档 */
-	.page-content::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		background: rgba(255, 252, 235, 0.42);
-		pointer-events: none;
-	}
+	.page { height: 100dvh; position: relative; }
 
+	/* 翻页留白：上端 Next Page 提示（下拉时露出），下端 Last Page 提示（上拉时露出） */
 	.page-gap {
 		height: var(--page-gap);
 		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
 		align-items: center;
-		justify-content: center;
-		background: var(--color-ink);
-		color: var(--color-card-text);
-		font-size: 14px;
-		letter-spacing: 0.2em;
-		text-transform: uppercase;
+		padding: 16px 0;
 	}
-	.page-gap span::after { content: ' \2193'; }
+	.gap-label {
+		font-size: 16px;
+		letter-spacing: 0.08em;
+		color: rgba(51, 51, 51, 0.5);
+	}
 
-	/* ======== 顶栏 / 语言切换 ======== */
+	/* ======== 顶栏（固定区）：模式切换 / 语言切换，与侧边栏 logo 顶部对齐 ======== */
 	.topbar {
 		position: fixed;
-		top: 0;
+		top: calc(24 * var(--u));
+		left: 0;
 		right: 0;
-		height: var(--topbar-h);
+		height: calc(32 * var(--u));
 		display: flex;
 		align-items: center;
-		padding-right: calc(56 * var(--u));
+		justify-content: space-between;
+		padding: 0 calc(56 * var(--u)) 0 calc(390 * var(--u));
+		pointer-events: none;
 		z-index: 40;
 		transition: opacity 400ms ease;
 	}
+	.topbar > * { pointer-events: auto; }
 	.site.is-cover .topbar { opacity: 0; pointer-events: none; }
+	.site.is-cover .topbar > * { pointer-events: none; }
 
-	.lang-switch, .cover-lang {
+	/* 模式切换：24pt 高（设计稿），位于内容栏左上角 */
+	.view-toggle { display: flex; gap: calc(14 * var(--u)); }
+	.view-toggle button {
+		border: 0;
+		background: none;
+		padding: 0;
+		cursor: pointer;
+		opacity: 0.35;
+		transition: opacity 160ms ease;
+	}
+	.view-toggle button.is-active, .view-toggle button:hover { opacity: 1; }
+	.view-toggle img { display: block; height: calc(24 * var(--u)); width: auto; }
+
+	/* 语言切换（EN.svg / CN_EN.svg / CN.svg），24pt 高 */
+	.lang-switch {
 		position: relative;
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		font-size: calc(16 * var(--u));
+		gap: calc(10 * var(--u));
+		height: calc(24 * var(--u));
 	}
-	.lang-divider { opacity: 0.4; }
+	.lang-en { height: calc(17 * var(--u)); }
+	.lang-divider { height: calc(24 * var(--u)); }
 	.lang-cn {
 		border: 0;
 		background: none;
-		font: inherit;
-		color: var(--color-muted);
-		cursor: pointer;
 		padding: 0;
+		cursor: pointer;
+		opacity: 0.4;
+		transition: opacity 160ms ease;
 	}
+	.lang-cn:hover { opacity: 0.8; }
+	.lang-cn img { display: block; height: calc(20 * var(--u)); }
 	.lang-tip {
 		position: absolute;
-		top: 120%;
+		top: 130%;
 		right: 0;
-		background: var(--color-ink);
-		color: var(--color-card-text);
+		background: #333333;
+		color: #fff6d7;
 		font-size: 12px;
 		padding: 4px 10px;
 		border-radius: 4px;
@@ -588,6 +625,20 @@ const contactCards = [
 		transition: opacity 200ms ease;
 	}
 	.is-tip-visible .lang-tip { opacity: 1; }
+
+	/* 窄屏菜单按钮 */
+	.menu-button {
+		display: none;
+		position: fixed;
+		top: 20px;
+		left: 20px;
+		z-index: 70;
+		border: 0;
+		background: none;
+		padding: 8px;
+		cursor: pointer;
+	}
+	.menu-button img { display: block; width: 28px; }
 
 	/* ======== 侧边栏显隐（封面 ↔ 内页过渡） ======== */
 	.sidebar {
@@ -616,7 +667,6 @@ const contactCards = [
 		padding: calc(80 * var(--u)) calc(100 * var(--u));
 		display: flex;
 		flex-direction: column;
-		gap: calc(40 * var(--u));
 		transition: opacity 420ms ease, transform 420ms ease;
 		transform-origin: top left;
 	}
@@ -632,73 +682,76 @@ const contactCards = [
 		align-items: flex-start;
 	}
 	.cover-title { width: calc(559 * var(--u)); }
-	.cover-info { text-align: left; width: calc(272 * var(--u)); }
+	/* ACADEMIC PORTFOLIO：Helvetica Regular 24 / 14，右对齐 */
+	.cover-info { text-align: right; }
 	.cover-info h2 {
 		margin: 0 0 calc(8 * var(--u));
-		font-size: calc(20 * var(--u));
-		letter-spacing: 0.08em;
+		font-size: calc(24 * var(--u));
+		font-weight: 400;
+		letter-spacing: 0.04em;
 	}
 	.cover-info p {
 		margin: 0;
-		font-size: calc(11 * var(--u));
+		font-size: calc(14 * var(--u));
 		color: var(--color-ink-soft);
 	}
 
-	.cover-main {
-		flex: 1;
-		display: flex;
-		gap: calc(80 * var(--u));
-		min-height: 0;
+	/* 照片：按设计稿绝对定位在右侧 */
+	.cover-photo {
+		position: absolute;
+		top: calc(145 * var(--u));
+		right: calc(51 * var(--u));
+		width: calc(393 * var(--u));
 	}
 
+	/* 菜单：固定行高、模块整体锚定左下；行内 48 号 Helvetica Regular + Star */
 	.cover-menu {
-		flex: 1;
+		margin-top: auto;
+		width: calc(838 * var(--u));
 		display: flex;
 		flex-direction: column;
-		justify-content: space-between;
 	}
 	.cover-menu-row {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		flex: 1;
+		height: calc(96 * var(--u));
+		flex: none;
 		border: 0;
-		border-top: 1.5px solid var(--color-ink);
+		border-top: 1.5px solid #333333;
 		background: none;
 		font-family: var(--font-body);
-		font-size: calc(32 * var(--u));
-		color: var(--color-ink);
+		font-size: calc(48 * var(--u));
+		font-weight: 400;
+		color: #333333;
 		cursor: pointer;
 		text-align: left;
 		padding: 0 calc(8 * var(--u));
 		transition: background 180ms ease;
 	}
-	.cover-menu-row:last-child { border-bottom: 1.5px solid var(--color-ink); }
+	.cover-menu-row:last-child { border-bottom: 1.5px solid #333333; }
 	.cover-menu-row:hover { background: rgba(255, 255, 255, 0.22); }
-	.cover-menu-plus { font-size: calc(28 * var(--u)); font-weight: 300; }
+	.cover-menu-star { width: calc(28 * var(--u)); height: calc(28 * var(--u)); }
 
-	.cover-side {
-		width: calc(320 * var(--u));
-		position: relative;
+	/* 右下角固定：小老鼠 + EN|中 + 社交图标，永远贴右下不上飘 */
+	.cover-corner {
+		position: absolute;
+		right: calc(100 * var(--u));
+		bottom: calc(56 * var(--u));
 		display: flex;
 		flex-direction: column;
-		align-items: center;
-		gap: calc(20 * var(--u));
+		align-items: flex-end;
+		gap: calc(16 * var(--u));
 	}
-	.cover-photo { width: calc(300 * var(--u)); }
-	.cover-rat {
-		position: absolute;
-		right: calc(-60 * var(--u));
-		bottom: calc(60 * var(--u));
-		width: calc(152 * var(--u));
-	}
-	.cover-lang { justify-content: center; }
+	.cover-rat { width: calc(152 * var(--u)); }
+	.cover-lang { justify-content: flex-end; }
 	.cover-socials {
 		display: flex;
 		gap: calc(20 * var(--u));
+		align-items: center;
 	}
-	.cover-socials a { color: var(--color-ink); }
-	.cover-socials svg { width: calc(24 * var(--u)); height: calc(24 * var(--u)); }
+	.cover-socials img { display: block; width: calc(24 * var(--u)); height: calc(24 * var(--u)); }
+	.cover-socials a, .cover-socials span { line-height: 0; }
 
 	/* ======== 内容页通用 ======== */
 	.page-scroll {
@@ -722,6 +775,7 @@ const contactCards = [
 		text-align: right;
 		font-size: calc(40 * var(--u));
 		font-weight: 700;
+		color: #333333;
 	}
 
 	.text-columns p {
@@ -729,73 +783,103 @@ const contactCards = [
 		font-size: calc(19 * var(--u));
 		line-height: 1.55;
 		text-align: justify;
+		color: #333333;
 	}
 
 	.placeholder-note { color: var(--color-muted); font-style: italic; }
 
-	/* ======== 项目网格 ======== */
+	/* ======== 项目卡片 ======== */
 	.project-grid {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
 		gap: calc(36 * var(--u));
 	}
+	/* 行模式：单列横幅 */
+	.project-grid.is-row-mode { grid-template-columns: 1fr; }
 
-	.project-card, .project-banner {
+	.project-card {
+		position: relative;
 		display: block;
 		text-decoration: none;
-		background: var(--color-card-dark);
 		overflow: hidden;
 		border-radius: 4px;
+		aspect-ratio: 460 / 328;  /* 设计稿卡片比例，信息栏 84/328 */
 	}
-	.project-card img {
-		display: block;
-		width: 100%;
-		aspect-ratio: 16 / 10;
-		object-fit: cover;
-	}
-	.project-banner img {
-		display: block;
-		width: 100%;
-		aspect-ratio: 32 / 11;
-		object-fit: cover;
-	}
+	.is-row-mode .project-card { aspect-ratio: 1240 / 420; }
 
-	.project-card-bar {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: calc(12 * var(--u)) calc(16 * var(--u));
-		color: var(--color-card-text);
+	.project-card-media {
+		position: absolute;
+		inset: 0;
+		overflow: hidden;
 	}
+	.project-card-media img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transform: scale(1);
+		transition: transform 450ms ease;
+	}
+	.project-card:hover .project-card-media img { transform: scale(1.15); }
+
+	/* 信息栏：高 84（按 328 卡高），#333 80% + 毛玻璃，文字 #FFF6D7 */
+	.project-card-bar {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: calc(84 / 328 * 100%);
+		background: rgba(51, 51, 51, 0.8);
+		-webkit-backdrop-filter: blur(8px);
+		backdrop-filter: blur(8px);
+		color: #fff6d7;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: calc(8 * var(--u)) calc(16 * var(--u)) calc(4 * var(--u));
+	}
+	.is-row-mode .project-card-bar { height: calc(84 * var(--u)); }
+
+	/* EA 色条：信息栏顶部 4 高 */
+	.ea-strip {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: calc(4 * var(--u));
+		display: flex;
+	}
+	.ea-strip i { flex: 1; }
+	.ea-ca { background: #b25656; }
+	.ea-tr { background: #c1a053; }
+	.ea-us { background: #6d9458; }
+	.ea-be { background: #5667b2; }
+	.ea-mdc { background: #9371a7; }
+	.ea-default { background: #8d8a7e; }
+
 	.project-card-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 	.project-card-text strong {
-		font-size: calc(16 * var(--u));
+		font-size: calc(17 * var(--u));
+		font-weight: 700;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
-	.project-card-text small { font-size: calc(12 * var(--u)); opacity: 0.75; }
-	.project-card-more {
-		font-size: calc(13 * var(--u));
-		border: 1px solid currentColor;
-		border-radius: 999px;
-		padding: 3px 10px;
-		white-space: nowrap;
-	}
-	.project-card:hover .project-card-more,
-	.project-banner:hover .project-card-more {
-		background: var(--color-card-text);
-		color: var(--color-card-dark);
-	}
+	.project-card-text small { font-size: calc(12 * var(--u)); opacity: 0.8; }
 
-	.project-banner-list { display: flex; flex-direction: column; gap: calc(36 * var(--u)); }
+	/* + More：右下角，More 带下划线 */
+	.project-card-more {
+		align-self: flex-end;
+		font-size: calc(14 * var(--u));
+		white-space: nowrap;
+		margin-bottom: calc(6 * var(--u));
+	}
+	.project-card-more u { text-underline-offset: 3px; }
 
 	/* ======== Contract ======== */
 	.contract-body {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		padding-right: calc(110 * var(--u));
 	}
 
 	.contact-cards {
@@ -813,6 +897,7 @@ const contactCards = [
 		margin: 0;
 		font-size: calc(15 * var(--u));
 		font-weight: 400;
+		color: #333333;
 	}
 	.scratch-card {
 		position: relative;
@@ -856,5 +941,54 @@ const contactCards = [
 		right: auto;
 		left: calc(310 * var(--u));
 		transform: rotate(0deg);
+	}
+
+	/* ======== 窄屏（≤900px）：对应 01-cover_thin / 02-content_thin / 03-menu_thin ======== */
+	@media (max-width: 900px) {
+		.menu-button { display: block; }
+		.site.is-cover .menu-button { display: none; }
+
+		.topbar { padding: 0 20px 0 64px; top: 18px; height: 28px; }
+		.view-toggle img { height: 22px; }
+		.lang-switch { height: 22px; gap: 8px; }
+		.lang-en { height: 15px; }
+		.lang-divider { height: 22px; }
+		.lang-cn img { height: 18px; }
+
+		/* 封面：标题在上、信息随后，菜单模块整体置于左下 */
+		.cover-inner { padding: 48px 24px 32px; }
+		.cover-top { flex-direction: column; gap: 12px; }
+		.cover-title { width: min(86vw, 480px); }
+		.cover-info { text-align: left; }
+		.cover-info h2 { font-size: 18px; }
+		.cover-info p { font-size: 12px; }
+		.cover-photo { display: none; }
+		.cover-menu { width: 100%; }
+		.cover-menu-row { height: 64px; font-size: 28px; }
+		.cover-menu-star { width: 20px; height: 20px; }
+		.cover-corner {
+			position: static;
+			margin-top: 20px;
+			align-items: flex-start;
+		}
+		.cover-rat { display: none; }
+		.cheese-lt, .cheese-rt { width: 90px; }
+		.cheese-lb { display: none; }
+		.cheese-rb { width: 110px; }
+
+		/* 内容页：左栏让位，文字区全宽 */
+		.page-body { padding: 84px 24px 56px; }
+		.page-heading { font-size: 26px; }
+		.text-columns p { font-size: 16px; }
+		.project-grid { grid-template-columns: 1fr; gap: 20px; }
+		.is-row-mode .project-card { aspect-ratio: 460 / 328; }
+		.project-card-bar { height: 64px; padding: 6px 12px 4px; }
+		.project-card-text strong { font-size: 15px; }
+		.project-card-text small { font-size: 11px; }
+		.project-card-more { font-size: 12px; }
+		.ea-strip { height: 3px; }
+		.contact-cards { flex-wrap: wrap; gap: 20px; justify-content: center; }
+		.contact-card { width: 150px; }
+		.rat-scrollbar { width: 56px; right: 8px; }
 	}
 </style>

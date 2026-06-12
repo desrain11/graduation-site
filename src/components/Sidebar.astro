@@ -23,7 +23,9 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 ---
 
 <aside class="sidebar" data-sidebar>
-	<a class="sidebar-logo" href="/#cover" data-nav-link data-nav-target="cover">YUNFEI HU<span class="logo-dot">.</span></a>
+	<a class="sidebar-logo" href="/#cover" data-nav-link data-nav-target="cover">
+		<img src="/image/cover/YUNFEI%20HU..svg" alt="YUNFEI HU." />
+	</a>
 
 	<nav class="sidebar-nav" aria-label="Sections">
 		<div class:list={['nav-group', { 'is-open': activePage === 'identity' || activePage === 'vision' }]} data-nav-group="piv">
@@ -83,24 +85,17 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 		position: fixed;
 		inset: 0 auto 0 0;
 		width: var(--sidebar-w);
-		padding: calc(56 * var(--u)) 0 calc(40 * var(--u)) calc(56 * var(--u));
+		padding: calc(48 * var(--u)) 0 calc(40 * var(--u)) calc(56 * var(--u));
 		display: flex;
 		flex-direction: column;
-		gap: calc(36 * var(--u));
+		gap: calc(40 * var(--u));
 		overflow: hidden;
 		z-index: 30;
 	}
 
-	.sidebar-logo {
-		font-family: var(--font-display);
-		font-size: calc(34 * var(--u));
-		letter-spacing: 0.01em;
-		color: var(--color-ink);
-		text-decoration: none;
-		white-space: nowrap;
-	}
-
-	.logo-dot { color: #8c2f23; }
+	/* 设计稿：内页 YUNFEI HU. 标志宽约 253px（1440 画布） */
+	.sidebar-logo { display: block; line-height: 0; }
+	.sidebar-logo img { width: calc(253 * var(--u)); }
 
 	/* 菜单区独立滚动（隐藏滚动条） */
 	.sidebar-nav {
@@ -109,50 +104,60 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 		scrollbar-width: none;
 		display: flex;
 		flex-direction: column;
-		gap: calc(18 * var(--u));
+		gap: calc(20 * var(--u));
 		padding-right: calc(12 * var(--u));
 	}
 	.sidebar-nav::-webkit-scrollbar { display: none; }
 
+	/* 一级菜单：Helvetica Regular 32，未选中 #333 40% / 选中 #333 */
 	.nav-top {
 		display: flex;
-		align-items: baseline;
-		gap: calc(12 * var(--u));
-		font-size: calc(24 * var(--u));
+		align-items: center;
+		gap: calc(14 * var(--u));
+		font-size: calc(32 * var(--u));
 		font-weight: 400;
-		color: var(--color-muted);
+		color: rgba(51, 51, 51, 0.4);
 		text-decoration: none;
 		transition: color 160ms ease;
 	}
+	.nav-top:hover { color: rgba(51, 51, 51, 0.7); }
 
-	.nav-top:hover { color: var(--color-ink-soft); }
-
-	.nav-marker::before {
-		content: '+';
-		display: inline-block;
-		width: calc(18 * var(--u));
-		font-size: calc(18 * var(--u));
+	/* 关闭态用 Star.svg（12×12），打开态用 × */
+	.nav-marker {
+		width: calc(12 * var(--u));
+		height: calc(12 * var(--u));
+		flex: none;
+		background: url('/image/ui/Star.svg') center / contain no-repeat;
 	}
-
-	.nav-group.is-open .nav-top { color: var(--color-ink); }
-	.nav-group.is-open .nav-marker::before { content: '\00d7'; }
+	.nav-group.is-open .nav-top { color: #333333; }
+	.nav-group.is-open .nav-marker {
+		background: none;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.nav-group.is-open .nav-marker::before {
+		content: '\00d7';
+		font-size: calc(20 * var(--u));
+		line-height: 1;
+	}
 
 	.nav-subs {
 		display: none;
 		flex-direction: column;
 		gap: calc(8 * var(--u));
-		margin: calc(10 * var(--u)) 0 0 calc(30 * var(--u));
+		margin: calc(12 * var(--u)) 0 0 calc(28 * var(--u));
 	}
 	.nav-group.is-open .nav-subs { display: flex; }
 
 	.nav-sub {
-		font-size: calc(17 * var(--u));
-		color: var(--color-muted);
+		font-size: calc(18 * var(--u));
+		color: rgba(51, 51, 51, 0.4);
 		text-decoration: none;
 	}
 	.nav-sub::before { content: '\2022\00a0'; }
-	.nav-sub:hover { color: var(--color-ink-soft); }
-	.nav-sub.is-active { color: var(--color-ink); }
+	.nav-sub:hover { color: rgba(51, 51, 51, 0.7); }
+	.nav-sub.is-active { color: #333333; }
 
 	.nav-projects {
 		display: none;
@@ -164,19 +169,37 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 
 	.nav-project {
 		font-size: calc(14 * var(--u));
-		color: var(--color-muted);
+		color: rgba(51, 51, 51, 0.4);
 		text-decoration: none;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		max-width: calc(210 * var(--u));
 	}
-	.nav-project:hover { color: var(--color-ink-soft); }
+	.nav-project:hover { color: rgba(51, 51, 51, 0.7); }
 	.nav-project.is-active {
-		color: var(--color-ink);
-		background: rgba(0, 0, 0, 0.08);
+		color: #333333;
+		background: rgba(51, 51, 51, 0.1);
 		border-radius: 3px;
 		padding: 1px calc(6 * var(--u));
 		margin-left: calc(-6 * var(--u));
+	}
+
+	/* 窄屏：侧边栏变成全屏菜单层（对应 03-menu_thin），由 .menu-open 控制 */
+	@media (max-width: 900px) {
+		.sidebar {
+			width: 100vw;
+			padding: 96px 32px 48px;
+			background: var(--paper-texture) center / cover no-repeat;
+			transform: translateX(-100%);
+			transition: transform 360ms ease;
+			z-index: 60;
+		}
+		:global(.menu-open) .sidebar { transform: translateX(0); }
+		.sidebar-logo img { width: 200px; }
+		.nav-top { font-size: 28px; }
+		.nav-marker { width: 12px; height: 12px; }
+		.nav-sub { font-size: 18px; }
+		.nav-project { font-size: 14px; max-width: none; }
 	}
 </style>

@@ -38,18 +38,25 @@ const renderParagraph = (text: string) =>
 	<div class="detail-site">
 		<Sidebar currentSlug={project.slug} main={main} course={course} extracurricular={extracurricular} />
 
+		<button class="menu-button" type="button" data-menu-button aria-label="Menu">
+			<img src="/image/ui/Menu.svg" alt="" aria-hidden="true" />
+		</button>
+
+		<!-- 固定顶栏：返回 + 语言切换（与侧边栏 logo 顶部对齐，不随内容滚动） -->
 		<header class="topbar">
+			<a class="back-link" href={`/#${backTarget.hash}`}>
+				<img src="/image/ui/Back.svg" alt="" aria-hidden="true" />
+				<span>{backTarget.label}</span>
+			</a>
 			<div class="lang-switch" data-lang-switch>
-				<span class="lang-en">EN</span>
-				<span class="lang-divider">|</span>
-				<button class="lang-cn" type="button" aria-label="中文版">中</button>
+				<img class="lang-en" src="/image/ui/EN.svg" alt="English" />
+				<img class="lang-divider" src="/image/ui/CN_EN.svg" alt="" aria-hidden="true" />
+				<button class="lang-cn" type="button" aria-label="中文版"><img src="/image/ui/CN.svg" alt="" aria-hidden="true" /></button>
 				<span class="lang-tip" role="status" aria-live="polite">敬请期待</span>
 			</div>
 		</header>
 
 		<main class="detail-main">
-			<a class="back-link" href={`/#${backTarget.hash}`}>&#8592; {backTarget.label}</a>
-
 			<h1 class="detail-heading">
 				{project.dribbbleUrl
 					? <a href={project.dribbbleUrl} target="_blank" rel="noreferrer" title="View this project on Dribbble">{project.displayTitle}.</a>
@@ -88,14 +95,7 @@ const renderParagraph = (text: string) =>
 <style is:global>
 	.detail-site {
 		min-height: 100dvh;
-		background: var(--paper-texture) center top / cover no-repeat fixed;
-	}
-	.detail-site::before {
-		content: '';
-		position: fixed;
-		inset: 0;
-		background: rgba(255, 252, 235, 0.42);
-		pointer-events: none;
+		background: var(--paper-texture) top center / 100% auto repeat-y fixed;
 	}
 
 	/* 详情页恢复原生滚动 */
@@ -103,30 +103,47 @@ const renderParagraph = (text: string) =>
 
 	.detail-site .topbar {
 		position: fixed;
-		top: 0;
+		top: calc(24 * var(--u));
+		left: 0;
 		right: 0;
-		height: var(--topbar-h);
+		height: calc(32 * var(--u));
 		display: flex;
 		align-items: center;
-		padding-right: calc(56 * var(--u));
+		justify-content: space-between;
+		padding: 0 calc(56 * var(--u)) 0 calc(390 * var(--u));
 		z-index: 40;
 	}
+
+	/* 返回：24 号字 + Back 图标，固定不随内容滚动 */
+	.back-link {
+		display: flex;
+		align-items: center;
+		gap: calc(12 * var(--u));
+		font-size: calc(24 * var(--u));
+		color: #333333;
+		text-decoration: none;
+	}
+	.back-link img { display: block; width: calc(24 * var(--u)); height: calc(24 * var(--u)); }
+	.back-link:hover span { text-decoration: underline; text-underline-offset: 3px; }
 
 	.lang-switch {
 		position: relative;
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		font-size: calc(16 * var(--u));
+		gap: calc(10 * var(--u));
+		height: calc(24 * var(--u));
 	}
-	.lang-divider { opacity: 0.4; }
-	.lang-cn { border: 0; background: none; font: inherit; color: var(--color-muted); cursor: pointer; padding: 0; }
+	.lang-en { height: calc(17 * var(--u)); }
+	.lang-divider { height: calc(24 * var(--u)); }
+	.lang-cn { border: 0; background: none; padding: 0; cursor: pointer; opacity: 0.4; transition: opacity 160ms ease; }
+	.lang-cn:hover { opacity: 0.8; }
+	.lang-cn img { display: block; height: calc(20 * var(--u)); }
 	.lang-tip {
 		position: absolute;
-		top: 120%;
+		top: 130%;
 		right: 0;
-		background: var(--color-ink);
-		color: var(--color-card-text);
+		background: #333333;
+		color: #fff6d7;
 		font-size: 12px;
 		padding: 4px 10px;
 		border-radius: 4px;
@@ -137,29 +154,34 @@ const renderParagraph = (text: string) =>
 	}
 	.is-tip-visible .lang-tip { opacity: 1; }
 
+	.menu-button {
+		display: none;
+		position: fixed;
+		top: 20px;
+		left: 20px;
+		z-index: 70;
+		border: 0;
+		background: none;
+		padding: 8px;
+		cursor: pointer;
+	}
+	.menu-button img { display: block; width: 28px; }
+
 	.detail-main {
 		position: relative;
 		padding:
-			calc(80 * var(--u))
+			calc(96 * var(--u))
 			calc(110 * var(--u))
 			calc(100 * var(--u))
 			calc(390 * var(--u));
 	}
-
-	.back-link {
-		display: inline-block;
-		font-size: calc(15 * var(--u));
-		color: var(--color-ink-soft);
-		text-decoration: none;
-		margin-bottom: calc(24 * var(--u));
-	}
-	.back-link:hover { color: var(--color-ink); }
 
 	.detail-heading {
 		margin: 0 0 calc(40 * var(--u));
 		text-align: right;
 		font-size: calc(40 * var(--u));
 		font-weight: 700;
+		color: #333333;
 	}
 	.detail-heading a { text-decoration: none; }
 	.detail-heading a:hover { text-decoration: underline; }
@@ -176,6 +198,7 @@ const renderParagraph = (text: string) =>
 		font-size: calc(19 * var(--u));
 		line-height: 1.55;
 		text-align: justify;
+		color: #333333;
 	}
 
 	.detail-figures {
@@ -200,14 +223,21 @@ const renderParagraph = (text: string) =>
 
 	.placeholder-note { color: var(--color-muted); font-style: italic; }
 
-	/* 窄屏：figure 收进文字流，与段落等宽 */
+	/* 窄屏：菜单按钮 + figure 收进文字流，与段落等宽 */
 	@media (max-width: 900px) {
-		.detail-main { padding: 96px 24px 64px; }
+		.menu-button { display: block; }
+		.detail-site .topbar { padding: 0 20px 0 64px; top: 18px; height: 28px; }
+		.back-link { font-size: 16px; gap: 8px; }
+		.back-link img { width: 18px; height: 18px; }
+		.lang-switch { height: 22px; gap: 8px; }
+		.lang-en { height: 15px; }
+		.lang-divider { height: 22px; }
+		.lang-cn img { height: 18px; }
+		.detail-main { padding: 84px 24px 64px; }
 		.detail-row { display: flex; flex-direction: column; gap: 16px; }
 		.detail-figures { order: 2; }
 		.detail-row > p { order: 1; }
-		.detail-heading { font-size: 28px; }
-		.sidebar { display: none; } /* TODO: 窄屏抽屉式菜单（对应 03-menu_thin 设计） */
+		.detail-heading { font-size: 26px; }
 	}
 </style>
 
@@ -218,5 +248,9 @@ const renderParagraph = (text: string) =>
 			wrap?.classList.add('is-tip-visible');
 			window.setTimeout(() => wrap?.classList.remove('is-tip-visible'), 1600);
 		});
+	});
+
+	document.querySelector('[data-menu-button]')?.addEventListener('click', () => {
+		document.body.classList.toggle('menu-open');
 	});
 </script>
