@@ -1,0 +1,222 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Sidebar from '../../components/Sidebar.astro';
+import { getProjectDetails, getProjectsByCategory } from '../../lib/content';
+import type { ProjectDetail } from '../../lib/content';
+
+export function getStaticPaths() {
+	return getProjectDetails().map((project) => ({
+		params: { slug: project.slug },
+		props: { project },
+	}));
+}
+
+interface Props {
+	project: ProjectDetail;
+}
+
+const { project } = Astro.props;
+const { main, course, extracurricular } = getProjectsByCategory();
+
+const backTarget = {
+	main: { hash: 'project-main', label: 'Back to Project/Main' },
+	course: { hash: 'project-course', label: 'Back to Project/Course' },
+	extracurricular: { hash: 'project-extracurricular', label: 'Back to Project/Extracurricular' },
+}[project.info.category];
+
+const figureByIndex = new Map(project.figures.map((figure) => [figure.index, figure]));
+
+const escapeHtml = (value: string) =>
+	value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+// 段落内的 figure~N 标记替换为 (Figure N)
+const renderParagraph = (text: string) =>
+	escapeHtml(text).replace(/figure\s*~\s*(\d+)/gi, '<em class="figure-ref">(Figure $1)</em>');
+---
+
+<Layout>
+	<div class="detail-site">
+		<Sidebar currentSlug={project.slug} main={main} course={course} extracurricular={extracurricular} />
+
+		<header class="topbar">
+			<div class="lang-switch" data-lang-switch>
+				<span class="lang-en">EN</span>
+				<span class="lang-divider">|</span>
+				<button class="lang-cn" type="button" aria-label="中文版">中</button>
+				<span class="lang-tip" role="status" aria-live="polite">敬请期待</span>
+			</div>
+		</header>
+
+		<main class="detail-main">
+			<a class="back-link" href={`/#${backTarget.hash}`}>&#8592; {backTarget.label}</a>
+
+			<h1 class="detail-heading">
+				{project.dribbbleUrl
+					? <a href={project.dribbbleUrl} target="_blank" rel="noreferrer" title="View this project on Dribbble">{project.displayTitle}.</a>
+					: `${project.displayTitle}.`}
+			</h1>
+
+			<article class="detail-blocks">
+				{project.blocks.map((block) => {
+					const figures = block.figureRefs
+						.map((index) => figureByIndex.get(index))
+						.filter((figure) => Boolean(figure));
+					return (
+						<div class:list={['detail-row', { 'has-figures': figures.length > 0 }]}>
+							{figures.length > 0 && (
+								<div class="detail-figures">
+									{figures.map((figure) => (
+										<figure>
+											<img src={figure.src} alt={figure.caption} loading="lazy" />
+											<figcaption>{figure.caption}</figcaption>
+										</figure>
+									))}
+								</div>
+							)}
+							<p set:html={renderParagraph(block.text)} />
+						</div>
+					);
+				})}
+				{project.blocks.length === 0 && (
+					<p class="placeholder-note">（内容待填写：{project.projectDir}/03-ea-contribution/ea-contribution.txt）</p>
+				)}
+			</article>
+		</main>
+	</div>
+</Layout>
+
+<style is:global>
+	.detail-site {
+		min-height: 100dvh;
+		background: var(--paper-texture) center top / cover no-repeat fixed;
+	}
+	.detail-site::before {
+		content: '';
+		position: fixed;
+		inset: 0;
+		background: rgba(255, 252, 235, 0.42);
+		pointer-events: none;
+	}
+
+	/* 详情页恢复原生滚动 */
+	body:has(.detail-site) { overflow: auto; }
+
+	.detail-site .topbar {
+		position: fixed;
+		top: 0;
+		right: 0;
+		height: var(--topbar-h);
+		display: flex;
+		align-items: center;
+		padding-right: calc(56 * var(--u));
+		z-index: 40;
+	}
+
+	.lang-switch {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-size: calc(16 * var(--u));
+	}
+	.lang-divider { opacity: 0.4; }
+	.lang-cn { border: 0; background: none; font: inherit; color: var(--color-muted); cursor: pointer; padding: 0; }
+	.lang-tip {
+		position: absolute;
+		top: 120%;
+		right: 0;
+		background: var(--color-ink);
+		color: var(--color-card-text);
+		font-size: 12px;
+		padding: 4px 10px;
+		border-radius: 4px;
+		white-space: nowrap;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 200ms ease;
+	}
+	.is-tip-visible .lang-tip { opacity: 1; }
+
+	.detail-main {
+		position: relative;
+		padding:
+			calc(80 * var(--u))
+			calc(110 * var(--u))
+			calc(100 * var(--u))
+			calc(390 * var(--u));
+	}
+
+	.back-link {
+		display: inline-block;
+		font-size: calc(15 * var(--u));
+		color: var(--color-ink-soft);
+		text-decoration: none;
+		margin-bottom: calc(24 * var(--u));
+	}
+	.back-link:hover { color: var(--color-ink); }
+
+	.detail-heading {
+		margin: 0 0 calc(40 * var(--u));
+		text-align: right;
+		font-size: calc(40 * var(--u));
+		font-weight: 700;
+	}
+	.detail-heading a { text-decoration: none; }
+	.detail-heading a:hover { text-decoration: underline; }
+
+	.detail-row {
+		display: grid;
+		grid-template-columns: calc(340 * var(--u)) 1fr;
+		column-gap: calc(48 * var(--u));
+		margin-bottom: calc(24 * var(--u));
+	}
+	.detail-row > p {
+		grid-column: 2;
+		margin: 0;
+		font-size: calc(19 * var(--u));
+		line-height: 1.55;
+		text-align: justify;
+	}
+
+	.detail-figures {
+		grid-column: 1;
+		display: flex;
+		flex-direction: column;
+		gap: calc(20 * var(--u));
+	}
+	.detail-figures figure { margin: 0; }
+	.detail-figures img {
+		display: block;
+		width: 100%;
+		border-radius: 4px;
+	}
+	.detail-figures figcaption {
+		margin-top: calc(6 * var(--u));
+		font-size: calc(13 * var(--u));
+		color: var(--color-ink-soft);
+	}
+
+	.figure-ref { font-style: italic; opacity: 0.75; }
+
+	.placeholder-note { color: var(--color-muted); font-style: italic; }
+
+	/* 窄屏：figure 收进文字流，与段落等宽 */
+	@media (max-width: 900px) {
+		.detail-main { padding: 96px 24px 64px; }
+		.detail-row { display: flex; flex-direction: column; gap: 16px; }
+		.detail-figures { order: 2; }
+		.detail-row > p { order: 1; }
+		.detail-heading { font-size: 28px; }
+		.sidebar { display: none; } /* TODO: 窄屏抽屉式菜单（对应 03-menu_thin 设计） */
+	}
+</style>
+
+<script>
+	document.querySelectorAll('.lang-cn').forEach((button) => {
+		button.addEventListener('click', () => {
+			const wrap = button.closest('[data-lang-switch]');
+			wrap?.classList.add('is-tip-visible');
+			window.setTimeout(() => wrap?.classList.remove('is-tip-visible'), 1600);
+		});
+	});
+</script>

@@ -1,46 +1,42 @@
 # 设计实现清单
 
 设计稿：https://www.figma.com/design/kPaWiu3MEv0lIOQBxvc4Qm/Portfolio-site
+参考截图（权威版，用户手工整理）：`E:\Portfolio\_figma-refs\`，01–09 为翻页流顺序，
+10-project-content(1-3) 为项目详情页（不参与翻页流，点卡片进入）。
 
-## 页面结构（已从设计稿确认）
+## 已实现
 
-- **封面**（黄色奶酪背景）：YUNFEI HU 大标题、右上 ACADEMIC PORTFOLIO 信息、圆形照片、
-  小老鼠插画、五个板块入口菜单（带 + 展开）、EN|中 切换、底部社交图标
-- **内页通用布局**：左侧深色侧边栏（YUNFEI HU. + 可展开导航树）+ 右侧浅黄内容面板
-- **五个板块**：
-  1. PI&V → Identity / Vision（文字页）
-  2. Project → Main（M11/M12/M21/FMP）/ Course / Extracurricular（卡片网格 + 详情页）
-  3. Expertise Areas（文字页）
-  4. Development（文字页）
-  5. Contract（深色联系页：四个联系卡、位置、CV 下载、版权）
-- **交互**：板块独立成页；用户稍用力下滑可带阻尼地翻到下一板块
-- 另有 720×1561 移动端画板 ×3（cover / content / menu）
+- [x] 封面：YUNFEI HU SVG、整行可点菜单（PI&V→Identity / Project→Main / 直达各板块）、
+      照片、奶酪洞四角、RatOnly、EN|中、社交图标（图标为临时内联 SVG）
+- [x] 9 页翻页流 + 阻尼翻页：内容滚到底继续拖、超过留白 62% 翻页，否则回弹；
+      页间留白为深色条 + 下一页名称提示
+- [x] 封面 ↔ 内页过渡：封面向左缩放淡出，侧边栏延迟淡入；内页 EN|中 顶栏固定
+- [x] 侧边栏导航树（独立滚动）：PI&V/Project（含三个子分类与项目列表）/Expertise/Development/Contract
+- [x] Identity / Vision / Expertise Areas / Development 文字页（读 public/content/*.txt）
+- [x] Project Main（M11/M12/M21/FMP 排序）/ Course 网格 / Extracurricular 横幅
+- [x] 项目详情页：标题链接 Dribbble 原作品页（从存档 HTML 提取 /shots/ 链接，不内嵌存档）；
+      ea-contribution.txt 段落 + figure~N 引用解析；宽屏 figure 就近排左侧栏、
+      窄屏（≤900px）收进文字流等宽；Back to Project/<分类> 返回对应翻页
+- [x] 小老鼠滚动条：随内容滚动走位，下滑头朝下/上滑头朝上，单屏页停页顶，点击停靠左侧
+- [x] Contract：四张刮刮卡（刮开见 QR）、版权行；无地址无 CV（按用户要求移除）
+- [x] Category 字段已写入源 Info.txt（旧站忽略）：balance=M11、TacoTask=M12、
+      2025Hola=M21、2026Hola=FMP、The-EYE=Extracurricular，其余 Course —— **待用户确认映射**
 
-## 待用户确认的设计细节
+## figure 引用约定
 
-- [ ] **项目分类映射**：每个项目对应 M11/M12/M21/FMP/Course/Extracurricular 中的哪个
-      （通过在 Info.txt 加 `Category:` 字段解决）
-- [ ] **字体**：标题（YUNFEI HU 的衬线/展示字体）与正文字体名称及字重；字体文件放 `public/fonts/`
-- [ ] **精确颜色**：奶酪黄、侧边栏深色、内容面板色等（可从 Figma 变量读取，或用户提供）
-- [ ] **阻尼滚动手感**：触发阈值（滚动多少算"稍微用力"）、动画时长/缓动；长文字板块内部
-      滚动与整页翻页如何共存（先滚到底再翻页？）
-- [ ] **项目详情页（+More）**：左侧 Figure 图片列 + 右侧长文 —— 图片和文字从项目目录哪个
-      子文件夹读取？需要定一个新的目录约定（建议如 `05-academic/figure-01.png、content.txt`）
-- [ ] **封面菜单 "+" 展开**：展开后显示什么（子栏目？预览？）
-- [ ] **EN|中 切换**：首发是否需要中文版，还是与旧站一样先占位
-- [ ] **移动端**：三块竖版画板的适配范围（仅封面+菜单？还是全部板块）
-- [ ] **Expertise Areas / Development 板块**：设计稿中正文与 Identity 相同（占位），
-      最终是纯文字还是有图表/EA 地图
+- 文稿（03-ea-contribution/ea-contribution.txt）中写 `figure~1`（兼容 `Figure ~ 2` 等大小写空格变体）
+- 图片放 `02-storyline/`，命名 `figure-1.png`（兼容 `figure_1.jpg`、`Figure 2.webp` 等）
+- 渲染时段落内标记显示为斜体 (Figure 1)，图片带 Figure N 题注
 
-## 素材清单（导入位置）
+## 待确认 / 待做
 
-| 素材 | 放置位置 | 来源 |
-| :--- | :--- | :--- |
-| 封面圆形照片 | `public/image/cover/` | 用户提供 |
-| 小老鼠 / 奶酪洞 / 星星等插画 | `public/image/ui/` | 可从 Figma 导出或复用旧站 |
-| 社交图标（Wechat/Email/Dribbble/Linkedin/Figma?） | `public/image/ui/` | 可从 Figma 导出 |
-| 联系二维码 ×4 | `public/contact/` | 可复用旧站 `public/Contact/` |
-| 中英文 CV PDF | `public/cv/` | 用户提供（旧站为 202601 版） |
-| 字体文件 | `public/fonts/` | 用户提供 |
-| 四个板块文字 | `public/content/*.txt` | 用户提供 |
-| favicon | `public/favicon.svg` | 可复用旧站 |
+- [ ] **Category 映射确认**（尤其 M12=TacoTask 还是 DUIET？）
+- [ ] 翻页阻尼手感参数（阈值 GAP*0.62、回弹 240ms、动画 720ms）待真机调
+- [ ] 小老鼠旋转方向（素材默认头朝右的假设）与停靠动画细节待视觉确认
+- [ ] 封面社交图标用的是临时内联 SVG，需要 Figma 导出正式图标（含 Figma 图标？）
+- [ ] 刮刮卡封面目前是深色底+平台名文字，需要正式图标素材后重绘
+- [ ] 移动端三块竖版（01-cover_thin / 02-content_thin / 03-menu_thin）未实现，
+      当前 ≤900px 仅详情页做了基础适配且隐藏侧边栏
+- [ ] 中文版（EN|中）：现为"敬请期待"占位
+- [ ] 精确字号/间距走查（当前按参考图目测 + 1440 比例单位 --u）
+- [ ] 2024P04_Casting 缺 Info.txt，是否收录？

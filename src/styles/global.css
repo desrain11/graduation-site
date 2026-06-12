@@ -1,49 +1,90 @@
-/*
- * 设计 token —— 当前为按截图取的近似值，待从 Figma 变量中核准后替换。
- * 设计稿基准宽度 1440px，整页缩放方式与旧站一致（--stage-scale）。
- */
+/* ============ 字体 ============ */
+@font-face {
+	font-family: 'Pistilli';
+	src: url('/fonts/Pistilli-Roman-1.woff2') format('woff2');
+	font-weight: 400;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Helvetica W';
+	src: url('/fonts/Helvetica.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Helvetica W';
+	src: url('/fonts/Helvetica-Bold.woff2') format('woff2');
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Helvetica W';
+	src: url('/fonts/Helvetica-Oblique.woff2') format('woff2');
+	font-weight: 400;
+	font-style: italic;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Helvetica W';
+	src: url('/fonts/helvetica-light-587ebe5a59211.woff2') format('woff2');
+	font-weight: 300;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Noto Sans CJK W';
+	src: url('/fonts/NotoSansCJK-Regular-1.woff2') format('woff2');
+	font-weight: 400;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Noto Sans CJK W';
+	src: url('/fonts/NotoSansCJK-Bold-6.woff2') format('woff2');
+	font-weight: 700;
+	font-display: swap;
+}
+
+/* ============ 设计 token（取自参考图采样） ============ */
 :root {
-	/* TODO: 以下颜色为近似值，待与设计稿核对 */
-	--color-cheese: #ffc93c;        /* 封面奶酪黄 */
-	--color-cheese-deep: #f5a623;   /* 奶酪洞/阴影 */
-	--color-ink: #1f1e1a;           /* 主文字黑 */
-	--color-sidebar: #35332c;       /* 内页侧边栏深色 */
-	--color-panel: #fff6d8;         /* 内页内容浅黄面板 */
-	--color-panel-text: #2b2a25;
-	--color-muted: #8d8a7e;
+	--paper-texture: url('/image/ui/bg-paper.jpg');
+	--color-cover-bg: #ffdb4c;     /* 封面饱和黄 */
+	--color-page-bg: #ffe99d;      /* 内页浅黄 */
+	--color-sidebar-tint: rgba(255, 229, 148, 0.9);
+	--color-ink: #1c1812;          /* 主文字 */
+	--color-ink-soft: #4a4438;
+	--color-muted: #a99e7e;        /* 非激活导航 */
+	--color-card-dark: #2c2c2c;    /* 深色卡片/信息条 */
+	--color-card-text: #ffe897;    /* 深色卡片上的浅黄字 */
 
-	--stage-scale: 1;
-	--sidebar-width: 280px;
+	/* 1440 设计稿比例单位：calc(像素值 * var(--u)) */
+	--u: calc(100vw / 1440);
+	--sidebar-w: calc(300 * var(--u));
+	--topbar-h: calc(72 * var(--u));
+	--page-gap: 140px;             /* 翻页留白高度 */
 
-	/* TODO: 字体待定 —— 设计稿中标题字体需用户确认 */
-	--font-display: 'Inter', 'Segoe UI', sans-serif;
-	--font-body: 'Inter', 'Segoe UI', sans-serif;
+	--font-display: 'Pistilli', 'Times New Roman', serif;
+	--font-body: 'Helvetica W', 'Helvetica Neue', Arial, 'Noto Sans CJK W', sans-serif;
 }
 
-* {
-	box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-html {
-	scroll-behavior: smooth;
+html, body {
+	margin: 0;
+	height: 100%;
+	overscroll-behavior: none;
 }
 
 body {
-	margin: 0;
 	font-family: var(--font-body);
 	color: var(--color-ink);
-	background: var(--color-cheese);
+	background: var(--color-page-bg);
+	overflow: hidden; /* 滚动完全由翻页系统接管 */
 }
 
-/* 全屏板块：占位实现，正式版会换成带阻尼的 JS 翻页 */
-.snap-container {
-	height: 100dvh;
-	overflow-y: auto;
-	scroll-snap-type: y proximity;
-}
+img { user-select: none; }
 
-.snap-section {
-	min-height: 100dvh;
-	scroll-snap-align: start;
-	position: relative;
-}
+a { color: inherit; }
+
+::selection { background: rgba(0, 0, 0, 0.85); color: var(--color-card-text); }

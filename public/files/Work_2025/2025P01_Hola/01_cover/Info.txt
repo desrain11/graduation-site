@@ -13,3 +13,5 @@ Client: Nexo Intelligent Technology Limited
 EA Involved：Technology & Realization/Creativity & Aesthetics/User & Society/Business & Entrepreneurship/Math, Data & Computing
 
 Abstract: Hola is an AI-powered daily healing mate designed for users aged 18–35, aiming to provide a private, low-judgment space for emotional disclosure and reflection. Through ongoing interaction, Hola adapts to users’ personalities and preferences, remembers their personal narratives, and offers real-time feedback to support self-reflection. With long-term companionship, the product seeks to help users gradually develop a more stable and positive mindset when facing everyday challenges.
+
+Category: M21

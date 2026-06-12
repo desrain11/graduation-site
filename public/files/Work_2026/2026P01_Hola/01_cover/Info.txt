@@ -13,3 +13,5 @@ Client: Nexo Intelligent Technology Limited
 EA Involved：Technology & Realization/Creativity & Aesthetics/User & Society/Business & Entrepreneurship/Math, Data & Computing
 
 Abstract: Memory Strength for AI chatbot
+
+Category: FMP

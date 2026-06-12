@@ -1,0 +1,182 @@
+---
+import type { Project } from '../lib/content';
+
+interface Props {
+	activePage?: string;
+	currentSlug?: string;
+	main: Project[];
+	course: Project[];
+	extracurricular: Project[];
+}
+
+const { activePage = '', currentSlug = '', main, course, extracurricular } = Astro.props;
+
+const projectGroups = [
+	{ id: 'project-main', label: 'Main', projects: main },
+	{ id: 'project-course', label: 'Course', projects: course },
+	{ id: 'project-extracurricular', label: 'Extracurricular', projects: extracurricular },
+];
+
+const isProjectPage = activePage.startsWith('project') || Boolean(currentSlug);
+const slugGroup = projectGroups.find((group) => group.projects.some((p) => p.slug === currentSlug))?.id ?? '';
+const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup === groupId;
+---
+
+<aside class="sidebar" data-sidebar>
+	<a class="sidebar-logo" href="/#cover" data-nav-link data-nav-target="cover">YUNFEI HU<span class="logo-dot">.</span></a>
+
+	<nav class="sidebar-nav" aria-label="Sections">
+		<div class:list={['nav-group', { 'is-open': activePage === 'identity' || activePage === 'vision' }]} data-nav-group="piv">
+			<a class="nav-top" href="/#identity" data-nav-link data-nav-target="identity">
+				<span class="nav-marker" aria-hidden="true"></span>PI&amp;V
+			</a>
+			<div class="nav-subs">
+				<a class:list={['nav-sub', { 'is-active': activePage === 'identity' }]} href="/#identity" data-nav-link data-nav-target="identity">Identity</a>
+				<a class:list={['nav-sub', { 'is-active': activePage === 'vision' }]} href="/#vision" data-nav-link data-nav-target="vision">Vision</a>
+			</div>
+		</div>
+
+		<div class:list={['nav-group', { 'is-open': isProjectPage }]} data-nav-group="project">
+			<a class="nav-top" href="/#project-main" data-nav-link data-nav-target="project-main">
+				<span class="nav-marker" aria-hidden="true"></span>Project
+			</a>
+			<div class="nav-subs">
+				{projectGroups.map((group) => (
+					<div class:list={['nav-sub-group', { 'is-open': isGroupOpen(group.id) }]} data-nav-subgroup={group.id}>
+						<a class:list={['nav-sub', { 'is-active': activePage === group.id }]} href={`/#${group.id}`} data-nav-link data-nav-target={group.id}>{group.label}</a>
+						<div class="nav-projects">
+							{group.projects.map((project) => (
+								<a
+									class:list={['nav-project', { 'is-active': currentSlug === project.slug }]}
+									href={`/project/${project.slug}/`}
+									title={project.info.title}
+								>{project.displayTitle}</a>
+							))}
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+
+		<div class:list={['nav-group', { 'is-open': activePage === 'expertise' }]} data-nav-group="expertise">
+			<a class="nav-top" href="/#expertise" data-nav-link data-nav-target="expertise">
+				<span class="nav-marker" aria-hidden="true"></span>Expertise Areas
+			</a>
+		</div>
+
+		<div class:list={['nav-group', { 'is-open': activePage === 'development' }]} data-nav-group="development">
+			<a class="nav-top" href="/#development" data-nav-link data-nav-target="development">
+				<span class="nav-marker" aria-hidden="true"></span>Development
+			</a>
+		</div>
+
+		<div class:list={['nav-group', { 'is-open': activePage === 'contract' }]} data-nav-group="contract">
+			<a class="nav-top" href="/#contract" data-nav-link data-nav-target="contract">
+				<span class="nav-marker" aria-hidden="true"></span>Contract
+			</a>
+		</div>
+	</nav>
+</aside>
+
+<style>
+	.sidebar {
+		position: fixed;
+		inset: 0 auto 0 0;
+		width: var(--sidebar-w);
+		padding: calc(56 * var(--u)) 0 calc(40 * var(--u)) calc(56 * var(--u));
+		display: flex;
+		flex-direction: column;
+		gap: calc(36 * var(--u));
+		overflow: hidden;
+		z-index: 30;
+	}
+
+	.sidebar-logo {
+		font-family: var(--font-display);
+		font-size: calc(34 * var(--u));
+		letter-spacing: 0.01em;
+		color: var(--color-ink);
+		text-decoration: none;
+		white-space: nowrap;
+	}
+
+	.logo-dot { color: #8c2f23; }
+
+	/* 菜单区独立滚动（隐藏滚动条） */
+	.sidebar-nav {
+		flex: 1;
+		overflow-y: auto;
+		scrollbar-width: none;
+		display: flex;
+		flex-direction: column;
+		gap: calc(18 * var(--u));
+		padding-right: calc(12 * var(--u));
+	}
+	.sidebar-nav::-webkit-scrollbar { display: none; }
+
+	.nav-top {
+		display: flex;
+		align-items: baseline;
+		gap: calc(12 * var(--u));
+		font-size: calc(24 * var(--u));
+		font-weight: 400;
+		color: var(--color-muted);
+		text-decoration: none;
+		transition: color 160ms ease;
+	}
+
+	.nav-top:hover { color: var(--color-ink-soft); }
+
+	.nav-marker::before {
+		content: '+';
+		display: inline-block;
+		width: calc(18 * var(--u));
+		font-size: calc(18 * var(--u));
+	}
+
+	.nav-group.is-open .nav-top { color: var(--color-ink); }
+	.nav-group.is-open .nav-marker::before { content: '\00d7'; }
+
+	.nav-subs {
+		display: none;
+		flex-direction: column;
+		gap: calc(8 * var(--u));
+		margin: calc(10 * var(--u)) 0 0 calc(30 * var(--u));
+	}
+	.nav-group.is-open .nav-subs { display: flex; }
+
+	.nav-sub {
+		font-size: calc(17 * var(--u));
+		color: var(--color-muted);
+		text-decoration: none;
+	}
+	.nav-sub::before { content: '\2022\00a0'; }
+	.nav-sub:hover { color: var(--color-ink-soft); }
+	.nav-sub.is-active { color: var(--color-ink); }
+
+	.nav-projects {
+		display: none;
+		flex-direction: column;
+		gap: calc(6 * var(--u));
+		margin: calc(8 * var(--u)) 0 calc(4 * var(--u)) calc(18 * var(--u));
+	}
+	.nav-sub-group.is-open .nav-projects { display: flex; }
+
+	.nav-project {
+		font-size: calc(14 * var(--u));
+		color: var(--color-muted);
+		text-decoration: none;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		max-width: calc(210 * var(--u));
+	}
+	.nav-project:hover { color: var(--color-ink-soft); }
+	.nav-project.is-active {
+		color: var(--color-ink);
+		background: rgba(0, 0, 0, 0.08);
+		border-radius: 3px;
+		padding: 1px calc(6 * var(--u));
+		margin-left: calc(-6 * var(--u));
+	}
+</style>

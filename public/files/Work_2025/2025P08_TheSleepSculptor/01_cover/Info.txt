@@ -14,3 +14,5 @@ EA Involved: Math, Data & Computing
 
 Abstract: The Sleep Sculptor is a data-driven Digital Twin system design project focused on improving sleep comfort in a smart home context. The project explores how environmental data, sleep monitoring data, user preferences, and daily routines can be connected through a digital twin of the bedroom.
 By linking the physical room with its digital representation, the system aims to identify patterns that influence sleep quality and provide personalized recommendations. The final concept presents sleep comfort as an adaptive experience shaped by data, environment, and user behavior.
+
+Category: Course

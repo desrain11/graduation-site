@@ -13,3 +13,5 @@ Client: AI Athlete
 EA Involved：User & Society/Business & Entrepreneurship
 
 Abstract: Memory Strength for AI chatbot
+
+Category: Course

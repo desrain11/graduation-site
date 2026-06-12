@@ -34,6 +34,28 @@ export type Project = {
 	projectDir: string;
 	coverImage: string;
 	info: ProjectInfo;
+	/** 标题主干（冒号/破折号前的部分），用于侧边栏与详情页大标题 */
+	shortTitle: string;
+	/** 详情页大标题，如 "M11 Balance Stompers." */
+	displayTitle: string;
+};
+
+export type Figure = {
+	index: number;
+	src: string;
+	caption: string;
+};
+
+/** ea-contribution 的一个段落，figureRefs 为该段引用的图号 */
+export type ContributionBlock = {
+	text: string;
+	figureRefs: number[];
+};
+
+export type ProjectDetail = Project & {
+	figures: Figure[];
+	blocks: ContributionBlock[];
+	dribbbleUrl?: string;
 };
 
 function publicPathToFilePath(publicPath: string) {
@@ -61,10 +83,14 @@ const MILESTONE_CODES: MilestoneCode[] = ['M11', 'M12', 'M21', 'FMP'];
 
 function parseCategory(raw: string): { category: ProjectCategory; milestone?: MilestoneCode } {
 	const normalized = raw.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-	const milestone = MILESTONE_CODES.find((code) => normalized === code || normalized === code.replace('M', 'M_'));
+	const milestone = MILESTONE_CODES.find((code) => normalized === code);
 	if (milestone) return { category: 'main', milestone };
 	if (normalized.startsWith('EXTRA')) return { category: 'extracurricular' };
 	return { category: 'course' };
+}
+
+function shortenTitle(title: string) {
+	return title.split(/[:：]|\s[–—-]\s/)[0].replace(/^["“”]+|["“”]+$/g, '').trim();
 }
 
 export function parseProjectInfo(text: string): ProjectInfo {
@@ -120,11 +146,13 @@ export function getProjects(): Project[] {
 					const coverFile = publicPathToFilePath(`${projectDir}/01_cover/hero-image.png`);
 					if (!existsSync(infoFile) || !existsSync(coverFile)) return undefined;
 
-					const info = parseProjectInfo(readFileSync(infoFile, 'utf-8'));
-					if (!info.milestone && !readFileSync(infoFile, 'utf-8').match(/^category/im)) {
+					const infoText = readFileSync(infoFile, 'utf-8');
+					const info = parseProjectInfo(infoText);
+					if (!/^category/im.test(infoText)) {
 						console.warn(`[content] ${projectId} 的 Info.txt 缺少 Category 字段，暂归入 Course`);
 					}
 
+					const shortTitle = shortenTitle(info.title);
 					return {
 						id: projectId,
 						slug: slugifyProjectId(projectId, year),
@@ -132,6 +160,8 @@ export function getProjects(): Project[] {
 						projectDir,
 						coverImage: encodePublicUrl(`${projectDir}/01_cover/hero-image.png`),
 						info,
+						shortTitle,
+						displayTitle: info.milestone ? `${info.milestone} ${shortTitle}` : shortTitle,
 					} satisfies Project;
 				})
 				.filter((project): project is Project => Boolean(project));
@@ -152,24 +182,85 @@ export function getProjectsByCategory() {
 	};
 }
 
-export function getProjectBySlug(slug: string) {
-	return getProjects().find((project) => project.slug === slug);
+/** 扫描 02-storyline 下的 figure-N.* 图片（兼容 figure1 / Figure_1 / figure 1 等写法） */
+function getFigures(projectDir: string): Figure[] {
+	const storylinePath = publicPathToFilePath(`${projectDir}/02-storyline`);
+	if (!existsSync(storylinePath)) return [];
+
+	return readdirSync(storylinePath)
+		.map((fileName) => {
+			const match = fileName.match(/^figure[\s_-]?(\d+)\.(png|jpe?g|webp|gif|svg)$/i);
+			if (!match || !statSync(join(storylinePath, fileName)).isFile()) return undefined;
+			return {
+				index: Number(match[1]),
+				src: encodePublicUrl(`${projectDir}/02-storyline/${fileName}`),
+				caption: `Figure ${match[1]}`,
+			} satisfies Figure;
+		})
+		.filter((figure): figure is Figure => Boolean(figure))
+		.sort((a, b) => a.index - b.index);
 }
 
-/** 读取 public/content/ 下的版块文字（Identity / Vision / Expertise Areas / Development） */
+/** 解析 ea-contribution.txt：分段并提取每段中的 figure~N 引用 */
+function parseContribution(text: string): ContributionBlock[] {
+	return text
+		.trim()
+		.split(/\r?\n+/)
+		.map((paragraph) => paragraph.trim())
+		.filter(Boolean)
+		.map((paragraph) => {
+			const figureRefs = Array.from(paragraph.matchAll(/figure\s*~\s*(\d+)/gi), (m) => Number(m[1]));
+			return { text: paragraph, figureRefs: Array.from(new Set(figureRefs)) };
+		});
+}
+
+/** 从 02-storyline 的 Dribbble 存档 HTML 中提取原始页面链接 */
+function getDribbbleUrl(projectDir: string): string | undefined {
+	const storylinePath = publicPathToFilePath(`${projectDir}/02-storyline`);
+	if (!existsSync(storylinePath)) return undefined;
+
+	const archive = readdirSync(storylinePath).find(
+		(fileName) => fileName.toLowerCase().endsWith('.html') && statSync(join(storylinePath, fileName)).isFile()
+	);
+	if (!archive) return undefined;
+
+	const html = readFileSync(join(storylinePath, archive), 'utf-8');
+	// 优先取作品页（/shots/...）链接，避免误取个人主页
+	const match =
+		html.match(/<link[^>]+rel="canonical"[^>]+href="(https:\/\/dribbble\.com\/shots\/[^"?]+)"/i) ??
+		html.match(/property="og:url"[^>]*content="(https:\/\/dribbble\.com\/shots\/[^"?]+)"/i) ??
+		html.match(/"(https:\/\/dribbble\.com\/shots\/[\w-]+)"/i);
+	return match?.[1];
+}
+
+export function getProjectDetails(): ProjectDetail[] {
+	return getProjects().map((project) => {
+		const contributionFile = publicPathToFilePath(`${project.projectDir}/03-ea-contribution/ea-contribution.txt`);
+		const contributionText = existsSync(contributionFile) ? readFileSync(contributionFile, 'utf-8') : '';
+
+		return {
+			...project,
+			figures: getFigures(project.projectDir),
+			blocks: parseContribution(contributionText),
+			dribbbleUrl: getDribbbleUrl(project.projectDir),
+		};
+	});
+}
+
+/** 读取 public/content/ 下的版块文字（identity / vision / expertise-areas / development） */
 export function getSectionText(name: string) {
 	const filePath = join(process.cwd(), 'public', 'content', `${name}.txt`);
-	return existsSync(filePath) ? readFileSync(filePath, 'utf-8').trim() : '';
+	if (!existsSync(filePath)) return [];
+	return readFileSync(filePath, 'utf-8')
+		.trim()
+		.split(/\r?\n+/)
+		.map((paragraph) => paragraph.trim())
+		.filter((paragraph) => Boolean(paragraph) && !paragraph.startsWith('（在此粘贴'));
 }
 
 export function formatProjectDate(time: string) {
-	const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 	const matches = Array.from(time.matchAll(/(\d{4})[./-](\d{1,2})/g));
 	if (matches.length === 0) return time;
-
-	const formatted = matches.map((match) => {
-		const month = monthNames[Number(match[2]) - 1];
-		return month ? `${month} ${match[1]}` : match[1];
-	});
-	return Array.from(new Set(formatted)).join(' - ');
+	const formatted = matches.map((match) => `${match[1]}.${match[2]}`);
+	return Array.from(new Set(formatted)).join('-');
 }
