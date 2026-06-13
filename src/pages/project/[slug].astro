@@ -97,13 +97,21 @@ const renderParagraph = (text: string) =>
 		min-height: 100dvh;
 		background: var(--paper-texture) top center / 100% auto repeat-y fixed;
 	}
+	/* 非封面页：纹理上叠 50% 白底 */
+	.detail-site::before {
+		content: '';
+		position: fixed;
+		inset: 0;
+		background: rgba(255, 255, 255, 0.5);
+		pointer-events: none;
+	}
 
 	/* 详情页恢复原生滚动 */
 	body:has(.detail-site) { overflow: auto; }
 
 	.detail-site .topbar {
 		position: fixed;
-		top: calc(24 * var(--u));
+		top: calc(48 * var(--u)); /* 与侧边栏 logo 顶部对齐 */
 		left: 0;
 		right: 0;
 		height: calc(32 * var(--u));
@@ -169,8 +177,9 @@ const renderParagraph = (text: string) =>
 
 	.detail-main {
 		position: relative;
+		z-index: 1;
 		padding:
-			calc(96 * var(--u))
+			calc(120 * var(--u)) /* 与侧边栏 PI&V 顶部对齐 */
 			calc(110 * var(--u))
 			calc(100 * var(--u))
 			calc(390 * var(--u));

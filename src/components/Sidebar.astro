@@ -93,9 +93,9 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 		z-index: 30;
 	}
 
-	/* 设计稿：内页 YUNFEI HU. 标志宽约 253px（1440 画布） */
+	/* 设计稿：内页 YUNFEI HU. 标志宽 253.5（取整 254，1440 画布） */
 	.sidebar-logo { display: block; line-height: 0; }
-	.sidebar-logo img { width: calc(253 * var(--u)); }
+	.sidebar-logo img { width: calc(254 * var(--u)); }
 
 	/* 菜单区独立滚动（隐藏滚动条） */
 	.sidebar-nav {
@@ -122,13 +122,15 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 	}
 	.nav-top:hover { color: rgba(51, 51, 51, 0.7); }
 
-	/* 关闭态用 Star.svg（12×12），打开态用 × */
+	/* 关闭态用 Star_B.svg（12×12），打开态用 × */
 	.nav-marker {
 		width: calc(12 * var(--u));
 		height: calc(12 * var(--u));
 		flex: none;
-		background: url('/image/ui/Star.svg') center / contain no-repeat;
+		background: url('/image/ui/Star_B.svg') center / contain no-repeat;
+		opacity: 0.4; /* 跟随未选中文字 40% */
 	}
+	.nav-group.is-open .nav-marker { opacity: 1; }
 	.nav-group.is-open .nav-top { color: #333333; }
 	.nav-group.is-open .nav-marker {
 		background: none;

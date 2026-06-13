@@ -78,8 +78,10 @@ const socialLinks = [
 						<img class="cover-title" src="/image/cover/YUNFEI%20HU..svg" alt="YUNFEI HU." />
 						<div class="cover-info">
 							<h2>ACADEMIC PORTFOLIO</h2>
-							<p>Industrial Design · Master · 2024-2026</p>
-							<p>Eindhoven University of Technology</p>
+							<div class="cover-info-sub">
+								<p>Industrial Design · Master · 2024-2026</p>
+								<p>Eindhoven University of Technology</p>
+							</div>
 						</div>
 					</div>
 
@@ -89,7 +91,7 @@ const socialLinks = [
 						{coverMenu.map((item) => (
 							<button class="cover-menu-row" type="button" data-cover-link data-nav-target={item.target}>
 								<span>{item.label}</span>
-								<img class="cover-menu-star" src="/image/ui/Star.svg" alt="" aria-hidden="true" />
+								<img class="cover-menu-star" src="/image/ui/Star_B.svg" alt="" aria-hidden="true" />
 							</button>
 						))}
 					</nav>
@@ -113,7 +115,7 @@ const socialLinks = [
 				</div>
 			</section>
 
-			<div class="page-gap"><span class="gap-label">Next Page</span><span class="gap-label">Last Page</span></div>
+			<div class="page-gap"></div>
 
 			<!-- ====== Identity / Vision ====== -->
 			{textPages.map((page) => (
@@ -130,7 +132,7 @@ const socialLinks = [
 							</div>
 						</div>
 					</section>
-					<div class="page-gap"><span class="gap-label">Next Page</span><span class="gap-label">Last Page</span></div>
+					<div class="page-gap"></div>
 				</>
 			))}
 
@@ -150,11 +152,11 @@ const socialLinks = [
 												<span class="ea-strip" aria-hidden="true">
 													{project.info.eaInvolved.map((ea) => <i class={`ea-${getEaCode(ea)}`} title={ea}></i>)}
 												</span>
-												<span class="project-card-text">
-													<strong>{projectPage.useDisplayTitle ? project.displayTitle : project.shortTitle}</strong>
+												<strong class="project-card-title">{projectPage.useDisplayTitle ? project.displayTitle : project.shortTitle}</strong>
+												<span class="project-card-meta">
 													<small>{formatProjectDate(project.info.time)}</small>
+													<span class="project-card-more">+ <u>More</u></span>
 												</span>
-												<span class="project-card-more">+ <u>More</u></span>
 											</span>
 										</a>
 									))}
@@ -163,7 +165,7 @@ const socialLinks = [
 							</div>
 						</div>
 					</section>
-					<div class="page-gap"><span class="gap-label">Next Page</span><span class="gap-label">Last Page</span></div>
+					<div class="page-gap"></div>
 				</>
 			))}
 
@@ -182,7 +184,7 @@ const socialLinks = [
 							</div>
 						</div>
 					</section>
-					<div class="page-gap"><span class="gap-label">Next Page</span><span class="gap-label">Last Page</span></div>
+					<div class="page-gap"></div>
 				</>
 			))}
 
@@ -211,6 +213,7 @@ const socialLinks = [
 		</div>
 
 		<img class="rat-scrollbar" data-rat src="/image/ui/littleRat.svg" alt="" aria-hidden="true" hidden />
+		<span class="flip-hint" data-flip-hint aria-hidden="true"></span>
 	</div>
 
 	<script>
@@ -221,6 +224,7 @@ const socialLinks = [
 		const ids = pages.map((page) => page.dataset.page);
 		const rat = document.querySelector('[data-rat]');
 		const viewToggle = document.querySelector('[data-view-toggle]');
+		const flipHint = document.querySelector('[data-flip-hint]');
 
 		let active = 0;
 		let flipping = false;
@@ -261,6 +265,7 @@ const socialLinks = [
 			const target = Math.max(0, Math.min(pages.length - 1, index));
 			active = target;
 			overscroll = 0;
+			if (flipHint) flipHint.style.opacity = '0';
 			flipping = animate;
 			setTrack(pageTop(active), animate);
 			site.classList.toggle('is-cover', ids[active] === 'cover');
@@ -274,8 +279,15 @@ const socialLinks = [
 		}
 
 		// ======== 阻尼翻页 ========
+		function setHint(direction, progress) {
+			if (direction === 0) { flipHint.style.opacity = '0'; return; }
+			flipHint.textContent = direction > 0 ? 'Next Page' : 'Last Page';
+			flipHint.style.opacity = String(Math.min(1, progress));
+		}
+
 		function springBack() {
 			overscroll = 0;
+			setHint(0);
 			setTrack(pageTop(active), true);
 		}
 
@@ -303,6 +315,7 @@ const socialLinks = [
 			// 橡皮筋：拖得越多阻力越大，最多拖出一个留白的距离
 			const eased = GAP * (1 - 1 / (1 + Math.abs(overscroll) / RUBBER_K));
 			setTrack(pageTop(active) + direction * eased, false);
+			setHint(direction, eased / THRESHOLD);
 
 			if (eased > THRESHOLD) {
 				goTo(active + direction);
@@ -394,8 +407,15 @@ const socialLinks = [
 		});
 
 		// 初始定位（支持 /#project-main 之类的深链；boot-hidden 在定位后移除避免闪封面）
+		// is-static：深链返回时侧边栏/过渡全部保持静态，不播动画
 		const initial = ids.indexOf(decodeURIComponent(window.location.hash.replace(/^#/, '')));
-		if (initial > 0) goTo(initial, false); else updateSidebarState();
+		if (initial > 0) {
+			site.classList.add('is-static');
+			goTo(initial, false);
+			window.requestAnimationFrame(() => window.requestAnimationFrame(() => site.classList.remove('is-static')));
+		} else {
+			updateSidebarState();
+		}
 		document.documentElement.removeAttribute('data-boot-hidden');
 
 		window.addEventListener('hashchange', () => {
@@ -442,6 +462,7 @@ const socialLinks = [
 			scroller.addEventListener('scroll', () => {
 				const direction = scroller.scrollTop > lastTop ? 1 : -1;
 				lastTop = scroller.scrollTop;
+				scroller.classList.toggle('is-scrolled', scroller.scrollTop > 0);
 				if (!ratParkedLeft) updateRat(direction);
 			}, { passive: true });
 		});
@@ -543,30 +564,48 @@ const socialLinks = [
 
 	.page { height: 100dvh; position: relative; }
 
-	/* 翻页留白：上端 Next Page 提示（下拉时露出），下端 Last Page 提示（上拉时露出） */
+	/* 非封面区域：纹理上叠 50% 白底（底图变 50% 透明度的效果） */
+	.page-content::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: rgba(255, 255, 255, 0.5);
+		pointer-events: none;
+	}
+
+	/* 翻页留白：纯纹理留白，同样叠 50% 白；封面后的第一个留白用渐变过渡 */
 	.page-gap {
 		height: var(--page-gap);
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		align-items: center;
-		padding: 16px 0;
+		background: rgba(255, 255, 255, 0.5);
 	}
-	.gap-label {
-		font-size: 16px;
+	.track > .page-gap:first-of-type {
+		background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5));
+	}
+
+	/* 翻页提示：触达边界时在内容栏顶部中央渐显 */
+	.flip-hint {
+		position: fixed;
+		top: calc(48 * var(--u));
+		left: calc(390 * var(--u) + (1440 - 390 - 110) / 2 * var(--u));
+		transform: translateX(-50%);
+		font-size: calc(18 * var(--u));
 		letter-spacing: 0.08em;
 		color: rgba(51, 51, 51, 0.5);
+		opacity: 0;
+		transition: opacity 180ms ease;
+		pointer-events: none;
+		z-index: 45;
 	}
 
 	/* ======== 顶栏（固定区）：模式切换 / 语言切换，与侧边栏 logo 顶部对齐 ======== */
 	.topbar {
 		position: fixed;
-		top: calc(24 * var(--u));
+		top: calc(48 * var(--u)); /* 与侧边栏 logo 顶部对齐 */
 		left: 0;
 		right: 0;
 		height: calc(32 * var(--u));
 		display: flex;
-		align-items: center;
+		align-items: flex-start;
 		justify-content: space-between;
 		padding: 0 calc(56 * var(--u)) 0 calc(390 * var(--u));
 		pointer-events: none;
@@ -646,6 +685,10 @@ const socialLinks = [
 		transform: translateX(0);
 		transition: opacity 500ms ease 180ms, transform 500ms ease 180ms;
 	}
+	/* 深链/返回进入时全部静态呈现，不播过渡动画 */
+	.site.is-static .sidebar,
+	.site.is-static .cover-inner,
+	.site.is-static .topbar { transition: none !important; }
 	.site.is-cover .sidebar {
 		opacity: 0;
 		transform: translateX(calc(-40 * var(--u)));
@@ -676,24 +719,31 @@ const socialLinks = [
 		transform: translateX(calc(-60 * var(--u))) scale(0.94);
 	}
 
+	/* 信息块与标题同高：ACADEMIC PORTFOLIO 顶对齐，副标题组底对齐 */
 	.cover-top {
 		display: flex;
 		justify-content: space-between;
-		align-items: flex-start;
+		align-items: stretch;
 	}
-	.cover-title { width: calc(559 * var(--u)); }
-	/* ACADEMIC PORTFOLIO：Helvetica Regular 24 / 14，右对齐 */
-	.cover-info { text-align: right; }
+	.cover-title { width: calc(559 * var(--u)); display: block; }
+	/* ACADEMIC PORTFOLIO：Helvetica Regular 24 / 14，右对齐，封面文字全黑 */
+	.cover-info {
+		text-align: right;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
 	.cover-info h2 {
-		margin: 0 0 calc(8 * var(--u));
+		margin: 0;
 		font-size: calc(24 * var(--u));
 		font-weight: 400;
 		letter-spacing: 0.04em;
+		color: #000000;
 	}
 	.cover-info p {
 		margin: 0;
 		font-size: calc(14 * var(--u));
-		color: var(--color-ink-soft);
+		color: #000000;
 	}
 
 	/* 照片：按设计稿绝对定位在右侧 */
@@ -718,18 +768,18 @@ const socialLinks = [
 		height: calc(96 * var(--u));
 		flex: none;
 		border: 0;
-		border-top: 1.5px solid #333333;
+		border-top: 1.5px solid #000000;
 		background: none;
 		font-family: var(--font-body);
 		font-size: calc(48 * var(--u));
 		font-weight: 400;
-		color: #333333;
+		color: #000000; /* 封面文字全黑 */
 		cursor: pointer;
 		text-align: left;
 		padding: 0 calc(8 * var(--u));
 		transition: background 180ms ease;
 	}
-	.cover-menu-row:last-child { border-bottom: 1.5px solid #333333; }
+	.cover-menu-row:last-child { border-bottom: 1.5px solid #000000; }
 	.cover-menu-row:hover { background: rgba(255, 255, 255, 0.22); }
 	.cover-menu-star { width: calc(28 * var(--u)); height: calc(28 * var(--u)); }
 
@@ -753,18 +803,27 @@ const socialLinks = [
 	.cover-socials img { display: block; width: calc(24 * var(--u)); height: calc(24 * var(--u)); }
 	.cover-socials a, .cover-socials span { line-height: 0; }
 
-	/* ======== 内容页通用 ======== */
+	/* ======== 内容页通用 ========
+	   内容区顶部与侧边栏 PI&V 顶部对齐（48 logo + 32 高 + 40 间距 = 120），
+	   超出向上滚动的内容在顶部 16 内渐变隐藏 */
 	.page-scroll {
-		position: relative;
-		height: 100%;
+		position: absolute;
+		top: calc(120 * var(--u));
+		bottom: 0;
+		left: 0;
+		right: 0;
 		overflow: hidden; /* 滚动由 JS 接管（scrollTop 仍可编程设置） */
+	}
+	.page-scroll.is-scrolled {
+		-webkit-mask-image: linear-gradient(to bottom, transparent 0, black calc(16 * var(--u)));
+		mask-image: linear-gradient(to bottom, transparent 0, black calc(16 * var(--u)));
 	}
 
 	.page-body {
 		position: relative;
 		min-height: 100%;
 		padding:
-			calc(96 * var(--u))
+			calc(4 * var(--u))
 			calc(110 * var(--u))
 			calc(80 * var(--u))
 			calc(390 * var(--u));
@@ -821,7 +880,8 @@ const socialLinks = [
 	}
 	.project-card:hover .project-card-media img { transform: scale(1.15); }
 
-	/* 信息栏：高 84（按 328 卡高），#333 80% + 毛玻璃，文字 #FFF6D7 */
+	/* 信息栏：高 84（按 328 卡高），#333 80% + 毛玻璃，文字 #FFF6D7
+	   第一行标题，第二行时间 + More 左右对齐 */
 	.project-card-bar {
 		position: absolute;
 		left: 0;
@@ -833,11 +893,17 @@ const socialLinks = [
 		backdrop-filter: blur(8px);
 		color: #fff6d7;
 		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: calc(8 * var(--u)) calc(16 * var(--u)) calc(4 * var(--u));
+		flex-direction: column;
+		justify-content: center;
+		gap: calc(6 * var(--u));
+		padding: calc(8 * var(--u)) calc(16 * var(--u));
 	}
 	.is-row-mode .project-card-bar { height: calc(84 * var(--u)); }
+	.project-card-meta {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+	}
 
 	/* EA 色条：信息栏顶部 4 高 */
 	.ea-strip {
@@ -856,22 +922,19 @@ const socialLinks = [
 	.ea-mdc { background: #9371a7; }
 	.ea-default { background: #8d8a7e; }
 
-	.project-card-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-	.project-card-text strong {
+	.project-card-title {
 		font-size: calc(17 * var(--u));
 		font-weight: 700;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
-	.project-card-text small { font-size: calc(12 * var(--u)); opacity: 0.8; }
+	.project-card-meta small { font-size: calc(12 * var(--u)); opacity: 0.8; }
 
-	/* + More：右下角，More 带下划线 */
+	/* + More：第二行右侧，More 带下划线 */
 	.project-card-more {
-		align-self: flex-end;
 		font-size: calc(14 * var(--u));
 		white-space: nowrap;
-		margin-bottom: calc(6 * var(--u));
 	}
 	.project-card-more u { text-underline-offset: 3px; }
 
@@ -935,7 +998,8 @@ const socialLinks = [
 		transition: top 160ms linear, right 900ms ease, left 900ms ease, transform 300ms ease;
 	}
 	.rat-scrollbar[data-heading='down'] { transform: rotate(90deg); }
-	.rat-scrollbar[data-heading='up'] { transform: rotate(-90deg); }
+	/* 向上时镜像，保持脚贴同一侧 */
+	.rat-scrollbar[data-heading='up'] { transform: rotate(-90deg) scaleY(-1); }
 	/* 停靠左侧：水平、头朝右 */
 	.rat-scrollbar.is-parked {
 		right: auto;
@@ -977,14 +1041,16 @@ const socialLinks = [
 		.cheese-rb { width: 110px; }
 
 		/* 内容页：左栏让位，文字区全宽 */
+		.page-scroll { top: 0; }
 		.page-body { padding: 84px 24px 56px; }
+		.flip-hint { left: 50%; top: 18px; font-size: 14px; }
 		.page-heading { font-size: 26px; }
 		.text-columns p { font-size: 16px; }
 		.project-grid { grid-template-columns: 1fr; gap: 20px; }
 		.is-row-mode .project-card { aspect-ratio: 460 / 328; }
-		.project-card-bar { height: 64px; padding: 6px 12px 4px; }
-		.project-card-text strong { font-size: 15px; }
-		.project-card-text small { font-size: 11px; }
+		.project-card-bar { height: 64px; padding: 6px 12px; gap: 3px; }
+		.project-card-title { font-size: 15px; }
+		.project-card-meta small { font-size: 11px; }
 		.project-card-more { font-size: 12px; }
 		.ea-strip { height: 3px; }
 		.contact-cards { flex-wrap: wrap; gap: 20px; justify-content: center; }
