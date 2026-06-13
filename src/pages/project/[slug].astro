@@ -34,16 +34,16 @@ const renderParagraph = (text: string) =>
 	escapeHtml(text).replace(/figure\s*~\s*(\d+)/gi, '<em class="figure-ref">(Figure $1)</em>');
 ---
 
-<Layout>
+<Layout clientRouter>
 	<div class="detail-site">
 		<Sidebar currentSlug={project.slug} main={main} course={course} extracurricular={extracurricular} />
 
-		<button class="menu-button" type="button" data-menu-button aria-label="Menu">
+		<button class="menu-button" type="button" data-menu-button aria-label="Menu" transition:name="menu-button" transition:animate="none">
 			<img src="/image/ui/Menu.svg" alt="" aria-hidden="true" />
 		</button>
 
 		<!-- 固定顶栏：返回 + 语言切换（与侧边栏 logo 顶部对齐，不随内容滚动） -->
-		<header class="topbar">
+		<header class="topbar" transition:name="detail-topbar" transition:animate="none">
 			<a class="back-link" href={`/#${backTarget.hash}`}>
 				<img src="/image/ui/Back.svg" alt="" aria-hidden="true" />
 				<span>{backTarget.label}</span>
@@ -56,7 +56,7 @@ const renderParagraph = (text: string) =>
 			</div>
 		</header>
 
-		<div class="detail-top-fade" aria-hidden="true"></div>
+		<div class="detail-top-fade" aria-hidden="true" transition:name="detail-fade" transition:animate="none"></div>
 
 		<main class="detail-main">
 			<h1 class="detail-heading">
@@ -108,8 +108,11 @@ const renderParagraph = (text: string) =>
 		pointer-events: none;
 	}
 
-	/* 详情页恢复原生滚动 */
-	body:has(.detail-site) { overflow: auto; }
+	/* 详情页恢复原生滚动；滚动条占位恒定，长短内容不横移版面 */
+	body:has(.detail-site) {
+		overflow-y: auto;
+		scrollbar-gutter: stable;
+	}
 
 	.detail-site .topbar {
 		position: fixed;
@@ -269,15 +272,20 @@ const renderParagraph = (text: string) =>
 </style>
 
 <script>
-	document.querySelectorAll('.lang-cn').forEach((button) => {
-		button.addEventListener('click', () => {
-			const wrap = button.closest('[data-lang-switch]');
-			wrap?.classList.add('is-tip-visible');
-			window.setTimeout(() => wrap?.classList.remove('is-tip-visible'), 1600);
+	// ClientRouter 软导航后 DOM 被替换，每次 astro:page-load 重新绑定
+	function initDetailPage() {
+		document.querySelectorAll('.lang-cn').forEach((button) => {
+			button.addEventListener('click', () => {
+				const wrap = button.closest('[data-lang-switch]');
+				wrap?.classList.add('is-tip-visible');
+				window.setTimeout(() => wrap?.classList.remove('is-tip-visible'), 1600);
+			});
 		});
-	});
 
-	document.querySelector('[data-menu-button]')?.addEventListener('click', () => {
-		document.body.classList.toggle('menu-open');
-	});
+		document.querySelector('[data-menu-button]')?.addEventListener('click', () => {
+			document.body.classList.toggle('menu-open');
+		});
+	}
+
+	document.addEventListener('astro:page-load', initDetailPage);
 </script>

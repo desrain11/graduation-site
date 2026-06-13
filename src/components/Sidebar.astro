@@ -22,7 +22,7 @@ const slugGroup = projectGroups.find((group) => group.projects.some((p) => p.slu
 const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup === groupId;
 ---
 
-<aside class="sidebar" data-sidebar>
+<aside class="sidebar" data-sidebar transition:name="site-sidebar" transition:animate="none">
 	<a class="sidebar-logo" href="/#cover" data-nav-link data-nav-target="cover">
 		<img src="/image/cover/YUNFEI%20HU..svg" alt="YUNFEI HU." />
 	</a>

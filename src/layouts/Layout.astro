@@ -1,5 +1,13 @@
 ---
+import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
+
+interface Props {
+	/** 详情页开启软导航：项目间切换只替换内容区，固定区域不闪烁 */
+	clientRouter?: boolean;
+}
+
+const { clientRouter = false } = Astro.props;
 ---
 
 <!doctype html>
@@ -11,6 +19,7 @@ import '../styles/global.css';
 		<meta name="generator" content={Astro.generator} />
 		<title>Yunfei Hu — Academic Portfolio</title>
 		<meta name="description" content="Academic portfolio of Yunfei (Fia) Hu — Industrial Design Master, Eindhoven University of Technology, 2024-2026." />
+		{clientRouter && <ClientRouter />}
 		<script is:inline>
 			// 带 hash 深链进入主页时先隐藏，待翻页引擎定位后再显示，避免闪现封面
 			if (window.location.hash && window.location.pathname === '/') {
