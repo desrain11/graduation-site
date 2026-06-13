@@ -644,13 +644,15 @@ const socialLinks = [
 	.view-toggle button.is-active, .view-toggle button:hover { opacity: 1; }
 	.view-toggle img { display: block; height: calc(24 * var(--u)); width: auto; }
 
-	/* 语言切换（EN.svg / CN_EN.svg / CN.svg），24pt 高 */
+	/* 语言切换（EN.svg / CN_EN.svg / CN.svg），24pt 高，始终固定靠右
+	   （即使左侧视图切换被隐藏，也不会被 space-between 拉到左边） */
 	.lang-switch {
 		position: relative;
 		display: flex;
 		align-items: center;
 		gap: calc(10 * var(--u));
 		height: calc(24 * var(--u));
+		margin-left: auto;
 	}
 	.lang-en { height: calc(17 * var(--u)); }
 	.lang-divider { height: calc(24 * var(--u)); }
