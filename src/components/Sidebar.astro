@@ -60,19 +60,19 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 			</div>
 		</div>
 
-		<div class:list={['nav-group', { 'is-open': activePage === 'expertise' }]} data-nav-group="expertise">
+		<div class:list={['nav-group', 'nav-leaf', { 'is-open': activePage === 'expertise' }]} data-nav-group="expertise">
 			<a class="nav-top" href="/#expertise" data-nav-link data-nav-target="expertise">
 				<span class="nav-marker" aria-hidden="true"></span>Expertise Areas
 			</a>
 		</div>
 
-		<div class:list={['nav-group', { 'is-open': activePage === 'development' }]} data-nav-group="development">
+		<div class:list={['nav-group', 'nav-leaf', { 'is-open': activePage === 'development' }]} data-nav-group="development">
 			<a class="nav-top" href="/#development" data-nav-link data-nav-target="development">
 				<span class="nav-marker" aria-hidden="true"></span>Development
 			</a>
 		</div>
 
-		<div class:list={['nav-group', { 'is-open': activePage === 'contract' }]} data-nav-group="contract">
+		<div class:list={['nav-group', 'nav-leaf', { 'is-open': activePage === 'contract' }]} data-nav-group="contract">
 			<a class="nav-top" href="/#contract" data-nav-link data-nav-target="contract">
 				<span class="nav-marker" aria-hidden="true"></span>Contract
 			</a>
@@ -111,37 +111,45 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 
 	/* 一级菜单：Helvetica Regular 32，未选中 #333 40% / 选中 #333 */
 	.nav-top {
-		display: flex;
+		display: inline-flex;
 		align-items: center;
+		align-self: flex-start;
 		gap: calc(14 * var(--u));
 		font-size: calc(32 * var(--u));
 		font-weight: 400;
+		white-space: nowrap;
 		color: rgba(51, 51, 51, 0.4);
 		text-decoration: none;
 		transition: color 160ms ease;
 	}
 	.nav-top:hover { color: rgba(51, 51, 51, 0.7); }
+	.nav-group.is-open .nav-top { color: #333333; }
 
-	/* 关闭态用 Star_B.svg（12×12），打开态用 × */
+	/* 标记始终是星星（12×12），展开时旋转 */
 	.nav-marker {
 		width: calc(12 * var(--u));
 		height: calc(12 * var(--u));
 		flex: none;
 		background: url('/image/ui/Star_B.svg') center / contain no-repeat;
 		opacity: 0.4; /* 跟随未选中文字 40% */
+		transition: transform 320ms ease, opacity 160ms ease;
 	}
-	.nav-group.is-open .nav-marker { opacity: 1; }
-	.nav-group.is-open .nav-top { color: #333333; }
 	.nav-group.is-open .nav-marker {
-		background: none;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
+		opacity: 1;
+		transform: rotate(135deg);
 	}
-	.nav-group.is-open .nav-marker::before {
-		content: '\00d7';
-		font-size: calc(20 * var(--u));
-		line-height: 1;
+
+	/* 无子项栏目被选中：黑底白字白星，块右缘与 logo 末尾方块右侧对齐
+	   （logo 右缘 = 左距 56 + 254；黑块左右各出血 8px） */
+	.nav-leaf.is-open .nav-top {
+		background: #000000;
+		color: #ffffff;
+		min-width: calc(254 * var(--u) + 8px); /* 左出血 8px，右缘 = 56 + 254 = logo 右缘 */
+		margin-left: -8px;
+		padding: 3px 8px;
+	}
+	.nav-leaf.is-open .nav-marker {
+		background-image: url('/image/ui/Star.svg');
 	}
 
 	.nav-subs {
@@ -153,13 +161,23 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 	.nav-group.is-open .nav-subs { display: flex; }
 
 	.nav-sub {
+		display: inline-block;
+		align-self: flex-start;
 		font-size: calc(18 * var(--u));
+		white-space: nowrap;
 		color: rgba(51, 51, 51, 0.4);
 		text-decoration: none;
 	}
 	.nav-sub::before { content: '\2022\00a0'; }
 	.nav-sub:hover { color: rgba(51, 51, 51, 0.7); }
-	.nav-sub.is-active { color: #333333; }
+	/* 选中子栏目：黑底白字，右缘与 logo 右缘对齐（容器已缩进 28） */
+	.nav-sub.is-active {
+		background: #000000;
+		color: #ffffff;
+		min-width: calc(226 * var(--u) + 8px);
+		margin-left: -8px;
+		padding: 2px 8px;
+	}
 
 	.nav-projects {
 		display: none;
@@ -170,21 +188,24 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 	.nav-sub-group.is-open .nav-projects { display: flex; }
 
 	.nav-project {
+		display: inline-block;
+		align-self: flex-start;
 		font-size: calc(14 * var(--u));
 		color: rgba(51, 51, 51, 0.4);
 		text-decoration: none;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
-		max-width: calc(210 * var(--u));
+		max-width: calc(208 * var(--u) + 8px);
 	}
 	.nav-project:hover { color: rgba(51, 51, 51, 0.7); }
+	/* 选中项目：黑底白字，右缘与 logo 右缘对齐（容器缩进 28+18） */
 	.nav-project.is-active {
-		color: #333333;
-		background: rgba(51, 51, 51, 0.1);
-		border-radius: 3px;
-		padding: 1px calc(6 * var(--u));
-		margin-left: calc(-6 * var(--u));
+		background: #000000;
+		color: #ffffff;
+		min-width: calc(208 * var(--u) + 8px);
+		margin-left: -8px;
+		padding: 2px 8px;
 	}
 
 	/* 窄屏：侧边栏变成全屏菜单层（对应 03-menu_thin），由 .menu-open 控制 */

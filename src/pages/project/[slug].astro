@@ -56,6 +56,8 @@ const renderParagraph = (text: string) =>
 			</div>
 		</header>
 
+		<div class="detail-top-fade" aria-hidden="true"></div>
+
 		<main class="detail-main">
 			<h1 class="detail-heading">
 				{project.dribbbleUrl
@@ -174,6 +176,22 @@ const renderParagraph = (text: string) =>
 		cursor: pointer;
 	}
 	.menu-button img { display: block; width: 28px; }
+
+	/* 顶部渐隐：与固定背景同纹理的遮挡条，向下滚动的内容在 16 内渐变隐去 */
+	.detail-top-fade {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: calc(120 * var(--u));
+		background:
+			linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)),
+			var(--paper-texture) top center / 100% auto repeat-y fixed;
+		-webkit-mask-image: linear-gradient(to bottom, black calc(100% - 16 * var(--u)), transparent);
+		mask-image: linear-gradient(to bottom, black calc(100% - 16 * var(--u)), transparent);
+		pointer-events: none;
+		z-index: 5;
+	}
 
 	.detail-main {
 		position: relative;

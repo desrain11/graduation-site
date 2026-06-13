@@ -60,7 +60,7 @@
 
 	/* 1440 设计稿比例单位：calc(像素值 * var(--u)) */
 	--u: calc(100vw / 1440);
-	--sidebar-w: calc(300 * var(--u));
+	--sidebar-w: calc(340 * var(--u)); /* 须容纳 56 左距 + 254 logo，避免裁切 */
 	--topbar-h: calc(72 * var(--u));
 	--page-gap: 140px;             /* 翻页留白高度 */
 
