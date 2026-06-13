@@ -100,12 +100,16 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 
 	/* 菜单区独立滚动（隐藏滚动条） */
 	.sidebar-nav {
+		/* ↓ 手动微调：所有栏目文字整体右移量（半个字符≈14）。黑框位置不受影响 */
+		--nav-text-inset: calc(14 * var(--u));
+
 		flex: 1;
 		overflow-y: auto;
 		scrollbar-width: none;
 		display: flex;
 		flex-direction: column;
 		gap: calc(20 * var(--u));
+		padding-left: var(--nav-text-inset);
 		padding-right: calc(12 * var(--u));
 	}
 	.sidebar-nav::-webkit-scrollbar { display: none; }
@@ -136,14 +140,16 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 	}
 
 	/* 栏目展开/被选中（含子页面选中时的母集）：黑底白字白星。
-	   黑块从星星自然位置（= logo 左缘 56）起，右延伸到 logo 右缘 310，
-	   不加左 padding，保证文字/星星零位移；上下用 padding 增高 */
+	   文字已被 --nav-text-inset 整体右移；这里用等量负 margin 把黑框拉回，
+	   使黑框仍锚定 logo 列（左 56 → 右 310），星星在框内留半字符边距 */
 	.nav-group.is-open .nav-top {
 		background: #000000;
 		color: #ffffff;
 		padding-top: 3px;
 		padding-bottom: 3px;
-		min-width: calc(254 * var(--u)); /* 黑块从星星(56)延伸到 logo 右缘(310)，文字星星保持原位不挪 */
+		margin-left: calc(-1 * var(--nav-text-inset));
+		padding-left: var(--nav-text-inset);
+		min-width: calc(254 * var(--u));
 	}
 	.nav-group.is-open .nav-marker {
 		opacity: 1;
