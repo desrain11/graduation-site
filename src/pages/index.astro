@@ -30,10 +30,10 @@ const projectPages: { id: string; projects: Project[]; useDisplayTitle: boolean 
 ];
 
 const contactCards = [
-	{ id: 'wechat', title: 'Wechat', detail: 'blueowl_fifi', qr: '/contact/QR-Wechat.svg', icon: '/image/ui/Wechat.svg' },
-	{ id: 'email', title: 'Email', detail: 'fiahu301@gmail.com', qr: '/contact/QR-Email.svg', icon: '/image/ui/email.svg', href: 'mailto:fiahu301@gmail.com' },
-	{ id: 'linkedin', title: 'Linkedin', detail: 'yunfei-fia-hu', qr: '/contact/QR-Linkedin.svg', icon: '/image/ui/linkedin.svg', href: 'https://www.linkedin.com/in/yunfei-fia-hu-813b8b2b0/' },
-	{ id: 'dribbble', title: 'Dribbble', detail: 'Blueowlfifi', qr: '/contact/QR-Dribble.svg', icon: '/image/ui/Dribbble.svg', href: 'https://dribbble.com/Blueowlfifi' },
+	{ id: 'wechat', title: 'Wechat', detail: 'blueowl_fifi', qr: '/contact/QR-Wechat.svg', cover: '/contact/Cover-Wechat.svg' },
+	{ id: 'email', title: 'Email', detail: 'fiahu301@gmail.com', qr: '/contact/QR-Email.svg', cover: '/contact/Cover-Email.svg', href: 'mailto:fiahu301@gmail.com' },
+	{ id: 'linkedin', title: 'Linkedin', detail: 'yunfei-fia-hu', qr: '/contact/QR-Linkedin.svg', cover: '/contact/Cover-Linkedin.svg', href: 'https://www.linkedin.com/in/yunfei-fia-hu-813b8b2b0/' },
+	{ id: 'dribbble', title: 'Dribbble', detail: 'Blueowlfifi', qr: '/contact/QR-Dribble.svg', cover: '/contact/Cover-Dribbble.svg', href: 'https://dribbble.com/Blueowlfifi' },
 ];
 
 const socialLinks = [
@@ -193,10 +193,14 @@ const socialLinks = [
 				<div class="page-scroll" data-scroll>
 					<div class="page-body contract-body">
 						<div class="contact-cards">
+							<span class="scratch-hint" data-scratch-hint aria-hidden="true">
+								<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 4c-2 8-7.5 11.5-15 13m0 0 5.2-.8M5 17l1.8-4.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+								Clean for QR
+							</span>
 							{contactCards.map((card) => (
 								<article class="contact-card">
 									<h3>{card.title}</h3>
-									<div class="scratch-card" data-scratch-card data-card-icon={card.icon}>
+									<div class="scratch-card" data-scratch-card data-cover-src={card.cover}>
 										<img class="scratch-qr" src={card.qr} alt={`${card.title} QR code`} draggable="false" />
 										<canvas class="scratch-cover" data-scratch-cover></canvas>
 									</div>
@@ -475,28 +479,32 @@ const socialLinks = [
 
 		updateRat();
 
-		// ======== Contract 刮刮卡（深色封层 + 浅色图标，刮开见 QR） ========
-		document.querySelectorAll('[data-scratch-card]').forEach((card) => {
+		// ======== Contract 刮刮卡（封面图封层，刮开见 QR） ========
+		// 提示状态机：刮开任意一张 → 提示消失；封层恢复后若一张都没刮开，5s 后提示渐入
+		const scratchHint = document.querySelector('[data-scratch-hint]');
+		const scratchCards = Array.from(document.querySelectorAll('[data-scratch-card]'));
+		let hintTimer;
+
+		function onScratchStateChange() {
+			window.clearTimeout(hintTimer);
+			const anyCleared = scratchCards.some((card) => card.classList.contains('is-cleared'));
+			if (anyCleared) {
+				scratchHint?.classList.add('is-hidden');
+			} else {
+				hintTimer = window.setTimeout(() => scratchHint?.classList.remove('is-hidden'), 5000);
+			}
+		}
+
+		scratchCards.forEach((card) => {
 			const canvas = card.querySelector('[data-scratch-cover]');
 			if (!(canvas instanceof HTMLCanvasElement)) return;
 			const context = canvas.getContext('2d', { willReadFrequently: true });
 			if (!context) return;
-			let iconImage = null;
+
+			const coverImage = new Image();
+			coverImage.src = card.dataset.coverSrc ?? '';
 			let isScratching = false;
 			let resetTimer;
-
-			const iconSrc = card.dataset.cardIcon;
-			if (iconSrc) {
-				fetch(iconSrc)
-					.then((response) => response.text())
-					.then((svg) => {
-						const recolored = svg.replaceAll('#333333', '#FFF6D7');
-						const image = new Image();
-						image.onload = () => { iconImage = image; drawCover(); };
-						image.src = `data:image/svg+xml;base64,${btoa(recolored)}`;
-					})
-					.catch(() => {});
-			}
 
 			function drawCover() {
 				const size = Math.max(1, Math.round(card.clientWidth));
@@ -507,13 +515,15 @@ const socialLinks = [
 				canvas.style.height = `${size}px`;
 				context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 				context.globalCompositeOperation = 'source-over';
-				context.fillStyle = '#2c2c2c';
-				context.fillRect(0, 0, size, size);
-				if (iconImage) {
-					const iconSize = size * 0.34;
-					context.drawImage(iconImage, (size - iconSize) / 2, (size - iconSize) / 2, iconSize, iconSize);
+				context.clearRect(0, 0, size, size);
+				if (coverImage.complete && coverImage.naturalWidth > 0) {
+					context.drawImage(coverImage, 0, 0, size, size);
+				} else {
+					context.fillStyle = '#2c2c2c';
+					context.fillRect(0, 0, size, size);
 				}
 				card.classList.remove('is-cleared');
+				onScratchStateChange();
 			}
 
 			function scratchAt(event) {
@@ -543,10 +553,14 @@ const socialLinks = [
 			canvas.addEventListener('pointerup', (event) => {
 				isScratching = false;
 				if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
-				if (clearedRatio() >= 0.7) card.classList.add('is-cleared');
+				if (clearedRatio() >= 0.7) {
+					card.classList.add('is-cleared');
+					onScratchStateChange();
+				}
 				window.clearTimeout(resetTimer);
-				resetTimer = window.setTimeout(drawCover, 30000);
+				resetTimer = window.setTimeout(drawCover, 15000); // 封层 15s 后恢复
 			});
+			coverImage.addEventListener('load', drawCover, { once: true });
 			window.addEventListener('resize', drawCover);
 			drawCover();
 		});
@@ -780,8 +794,10 @@ const socialLinks = [
 		transition: background 180ms ease;
 	}
 	.cover-menu-row:last-child { border-bottom: 1.5px solid #000000; }
-	.cover-menu-row:hover { background: rgba(255, 255, 255, 0.22); }
-	.cover-menu-star { width: calc(28 * var(--u)); height: calc(28 * var(--u)); }
+	/* hover/选中：黑底白字白星 */
+	.cover-menu-row:hover { background: #000000; color: #ffffff; }
+	.cover-menu-star { width: calc(28 * var(--u)); height: calc(28 * var(--u)); transition: filter 160ms ease; }
+	.cover-menu-row:hover .cover-menu-star { filter: invert(1); }
 
 	/* 右下角固定：小老鼠 + EN|中 + 社交图标，永远贴右下不上飘 */
 	.cover-corner {
@@ -939,16 +955,49 @@ const socialLinks = [
 	.project-card-more u { text-underline-offset: 3px; }
 
 	/* ======== Contract ======== */
+	/* 清洁布光标（原图 73×103 的一半） */
+	[data-page='contract'] .page-scroll { cursor: url('/contact/mouse-clean-cursor.svg') 6 6, auto; }
+
 	.contract-body {
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
+		padding-bottom: calc(16 * var(--u)); /* 版权行贴近页面底部 */
 	}
 
 	.contact-cards {
+		position: relative;
 		display: flex;
 		justify-content: space-between;
 		gap: calc(32 * var(--u));
+		margin: auto 0; /* 卡片在版心居中，版权独立沉底 */
+	}
+
+	/* Clean for QR 提示：以箭头尖端（左下）为圆心，每 3s 小幅弹簧摇晃一次 */
+	.scratch-hint {
+		position: absolute;
+		top: calc(-56 * var(--u));
+		left: calc(116 * var(--u));
+		display: flex;
+		align-items: flex-end;
+		gap: calc(6 * var(--u));
+		font-size: calc(15 * var(--u));
+		font-style: italic;
+		color: rgba(51, 51, 51, 0.55);
+		transform-origin: left bottom;
+		transform: rotate(-10deg);
+		pointer-events: none;
+		transition: opacity 600ms ease;
+		animation: scratch-wobble 3s ease-in-out infinite;
+	}
+	.scratch-hint svg { width: calc(22 * var(--u)); height: calc(22 * var(--u)); }
+	.scratch-hint.is-hidden { opacity: 0; animation: none; }
+
+	@keyframes scratch-wobble {
+		0%, 24%, 100% { transform: rotate(-10deg); }
+		4% { transform: rotate(-4deg); }
+		9% { transform: rotate(-14deg); }
+		14% { transform: rotate(-7deg); }
+		19% { transform: rotate(-11.5deg); }
 	}
 	.contact-card {
 		display: flex;
@@ -971,7 +1020,7 @@ const socialLinks = [
 		background: #fff;
 	}
 	.scratch-qr { position: absolute; inset: 0; width: 100%; height: 100%; }
-	.scratch-cover { position: absolute; inset: 0; touch-action: none; cursor: crosshair; }
+	.scratch-cover { position: absolute; inset: 0; touch-action: none; cursor: inherit; }
 	.scratch-card.is-cleared .scratch-cover { opacity: 0; transition: opacity 400ms ease; pointer-events: none; }
 	.contact-detail {
 		font-size: calc(12 * var(--u));
@@ -981,8 +1030,10 @@ const socialLinks = [
 	}
 	a.contact-detail:hover { text-decoration: underline; }
 
+	/* 版权行贴近页面底部，随窗口高度变化始终沉底 */
 	.copyright {
-		margin-top: calc(70 * var(--u));
+		margin-top: auto;
+		padding-bottom: calc(8 * var(--u));
 		text-align: center;
 		font-size: calc(12 * var(--u));
 		color: var(--color-muted);

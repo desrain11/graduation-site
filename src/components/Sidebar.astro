@@ -45,7 +45,8 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 			<div class="nav-subs">
 				{projectGroups.map((group) => (
 					<div class:list={['nav-sub-group', { 'is-open': isGroupOpen(group.id) }]} data-nav-subgroup={group.id}>
-						<a class:list={['nav-sub', { 'is-active': activePage === group.id }]} href={`/#${group.id}`} data-nav-link data-nav-target={group.id}>{group.label}</a>
+						{/* 子项目被选中时，母集（Main/Course/Extracurricular）同样标黑 */}
+						<a class:list={['nav-sub', { 'is-active': activePage === group.id || slugGroup === group.id }]} href={`/#${group.id}`} data-nav-link data-nav-target={group.id}>{group.label}</a>
 						<div class="nav-projects">
 							{group.projects.map((project) => (
 								<a
@@ -139,14 +140,12 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 		transform: rotate(135deg);
 	}
 
-	/* 无子项栏目被选中：黑底白字白星，块右缘与 logo 末尾方块右侧对齐
-	   （logo 右缘 = 左距 56 + 254；黑块左右各出血 8px） */
+	/* 无子项栏目被选中：黑底白字白星，黑块与 logo 左右两缘对齐（56 → 56+254） */
 	.nav-leaf.is-open .nav-top {
 		background: #000000;
 		color: #ffffff;
-		min-width: calc(254 * var(--u) + 8px); /* 左出血 8px，右缘 = 56 + 254 = logo 右缘 */
-		margin-left: -8px;
-		padding: 3px 8px;
+		min-width: calc(254 * var(--u));
+		padding: 3px 8px 3px 0;
 	}
 	.nav-leaf.is-open .nav-marker {
 		background-image: url('/image/ui/Star.svg');
@@ -170,13 +169,13 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 	}
 	.nav-sub::before { content: '\2022\00a0'; }
 	.nav-sub:hover { color: rgba(51, 51, 51, 0.7); }
-	/* 选中子栏目：黑底白字，右缘与 logo 右缘对齐（容器已缩进 28） */
+	/* 选中子栏目：黑底白字，黑块向左扩到 logo 左缘（容器缩进 28），左右两缘与 logo 对齐 */
 	.nav-sub.is-active {
 		background: #000000;
 		color: #ffffff;
-		min-width: calc(226 * var(--u) + 8px);
-		margin-left: -8px;
-		padding: 2px 8px;
+		min-width: calc(254 * var(--u));
+		margin-left: calc(-28 * var(--u));
+		padding: 2px 8px 2px calc(28 * var(--u));
 	}
 
 	.nav-projects {
@@ -199,13 +198,14 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 		max-width: calc(208 * var(--u) + 8px);
 	}
 	.nav-project:hover { color: rgba(51, 51, 51, 0.7); }
-	/* 选中项目：黑底白字，右缘与 logo 右缘对齐（容器缩进 28+18） */
+	/* 选中项目：黑底白字，黑块向左扩到 logo 左缘（容器缩进 28+18），左右两缘与 logo 对齐 */
 	.nav-project.is-active {
 		background: #000000;
 		color: #ffffff;
-		min-width: calc(208 * var(--u) + 8px);
-		margin-left: -8px;
-		padding: 2px 8px;
+		min-width: calc(254 * var(--u));
+		max-width: calc(254 * var(--u));
+		margin-left: calc(-46 * var(--u));
+		padding: 2px 8px 2px calc(46 * var(--u));
 	}
 
 	/* 窄屏：侧边栏变成全屏菜单层（对应 03-menu_thin），由 .menu-open 控制 */
