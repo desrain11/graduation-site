@@ -116,7 +116,7 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 		align-items: center;
 		align-self: flex-start;
 		gap: calc(14 * var(--u));
-		font-size: calc(32 * var(--u));
+		font-size: calc(28 * var(--u));
 		font-weight: 400;
 		white-space: nowrap;
 		color: rgba(51, 51, 51, 0.4);
@@ -143,8 +143,7 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 		color: #ffffff;
 		padding-top: 3px;
 		padding-bottom: 3px;
-		padding-left: calc(16 * var(--u)); /* 星星+文字右移半个字符，黑块（border-box）左右缘不变 */
-		min-width: calc(254 * var(--u));
+		min-width: calc(254 * var(--u)); /* 黑块从星星(56)延伸到 logo 右缘(310)，文字星星保持原位不挪 */
 	}
 	.nav-group.is-open .nav-marker {
 		opacity: 1;
