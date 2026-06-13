@@ -124,7 +124,6 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 		transition: color 160ms ease;
 	}
 	.nav-top:hover { color: rgba(51, 51, 51, 0.7); }
-	.nav-group.is-open .nav-top { color: #333333; }
 
 	/* 标记始终是星星（12×12），展开时旋转 */
 	.nav-marker {
@@ -135,19 +134,18 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 		opacity: 0.4; /* 跟随未选中文字 40% */
 		transition: transform 320ms ease, opacity 160ms ease;
 	}
-	.nav-group.is-open .nav-marker {
-		opacity: 1;
-		transform: rotate(135deg);
-	}
 
-	/* 无子项栏目被选中：黑底白字白星，黑块与 logo 左右两缘对齐（56 → 56+254） */
-	.nav-leaf.is-open .nav-top {
+	/* 栏目展开/被选中（含子页面选中时的母集）：黑底白字白星，
+	   黑块与 logo 左右两缘对齐（56 → 56+254），内容内缩不贴边 */
+	.nav-group.is-open .nav-top {
 		background: #000000;
 		color: #ffffff;
 		min-width: calc(254 * var(--u));
-		padding: 3px 8px 3px 0;
+		padding: 3px 8px 3px calc(12 * var(--u));
 	}
-	.nav-leaf.is-open .nav-marker {
+	.nav-group.is-open .nav-marker {
+		opacity: 1;
+		transform: rotate(135deg);
 		background-image: url('/image/ui/Star.svg');
 	}
 

@@ -194,8 +194,8 @@ const socialLinks = [
 					<div class="page-body contract-body">
 						<div class="contact-cards">
 							<span class="scratch-hint" data-scratch-hint aria-hidden="true">
-								<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 4c-2 8-7.5 11.5-15 13m0 0 5.2-.8M5 17l1.8-4.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-								Clean for QR
+								<span class="scratch-hint-text">Clean for QR</span>
+								<svg class="scratch-hint-arrow" viewBox="0 0 24 32" fill="none" aria-hidden="true"><path d="M14 2c-6 6-5 16-2 26m0 0-5-6m5 6 6-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
 							</span>
 							{contactCards.map((card) => (
 								<article class="contact-card">
@@ -790,7 +790,7 @@ const socialLinks = [
 		color: #000000; /* 封面文字全黑 */
 		cursor: pointer;
 		text-align: left;
-		padding: 0 calc(8 * var(--u));
+		padding: 0 calc(24 * var(--u)); /* 文字与星星各向内挪约半个字符 */
 		transition: background 180ms ease;
 	}
 	.cover-menu-row:last-child { border-bottom: 1.5px solid #000000; }
@@ -972,32 +972,42 @@ const socialLinks = [
 		margin: auto 0; /* 卡片在版心居中，版权独立沉底 */
 	}
 
-	/* Clean for QR 提示：以箭头尖端（左下）为圆心，每 3s 小幅弹簧摇晃一次 */
+	/* Clean for QR 提示：文字顺时针倾斜，文字中部对箭头末尾（上端），
+	   整体以箭头尖端（下端）为圆心，每 3s 小幅弹簧摇晃一次 */
 	.scratch-hint {
 		position: absolute;
-		top: calc(-56 * var(--u));
-		left: calc(116 * var(--u));
+		top: calc(-40 * var(--u));
+		left: calc(110 * var(--u));
 		display: flex;
-		align-items: flex-end;
-		gap: calc(6 * var(--u));
+		flex-direction: column;
+		align-items: center;
+		gap: calc(2 * var(--u));
 		font-size: calc(15 * var(--u));
 		font-style: italic;
 		color: rgba(51, 51, 51, 0.55);
-		transform-origin: left bottom;
-		transform: rotate(-10deg);
+		transform-origin: center bottom;
+		transform: rotate(12deg);
 		pointer-events: none;
 		transition: opacity 600ms ease;
 		animation: scratch-wobble 3s ease-in-out infinite;
 	}
-	.scratch-hint svg { width: calc(22 * var(--u)); height: calc(22 * var(--u)); }
+	.scratch-hint-text {
+		transform: rotate(12deg);
+		white-space: nowrap;
+	}
+	.scratch-hint-arrow {
+		width: calc(20 * var(--u));
+		height: calc(28 * var(--u));
+		margin-right: calc(14 * var(--u)); /* 箭头末尾（上端）对文字中部 */
+	}
 	.scratch-hint.is-hidden { opacity: 0; animation: none; }
 
 	@keyframes scratch-wobble {
-		0%, 24%, 100% { transform: rotate(-10deg); }
-		4% { transform: rotate(-4deg); }
-		9% { transform: rotate(-14deg); }
-		14% { transform: rotate(-7deg); }
-		19% { transform: rotate(-11.5deg); }
+		0%, 24%, 100% { transform: rotate(12deg); }
+		4% { transform: rotate(18deg); }
+		9% { transform: rotate(8deg); }
+		14% { transform: rotate(15deg); }
+		19% { transform: rotate(10.5deg); }
 	}
 	.contact-card {
 		display: flex;
