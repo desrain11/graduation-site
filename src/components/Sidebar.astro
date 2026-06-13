@@ -143,6 +143,7 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 		color: #ffffff;
 		padding-top: 3px;
 		padding-bottom: 3px;
+		padding-left: calc(16 * var(--u)); /* 星星+文字右移半个字符，黑块（border-box）左右缘不变 */
 		min-width: calc(254 * var(--u));
 	}
 	.nav-group.is-open .nav-marker {
