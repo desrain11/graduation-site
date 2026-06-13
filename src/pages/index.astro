@@ -630,8 +630,9 @@ const socialLinks = [
 	.site.is-cover .topbar { opacity: 0; pointer-events: none; }
 	.site.is-cover .topbar > * { pointer-events: none; }
 
-	/* 模式切换：24pt 高（设计稿），位于内容栏左上角 */
+	/* 模式切换：24pt 高（设计稿），仅 Project 页显示（JS 通过 hidden 控制） */
 	.view-toggle { display: flex; gap: calc(14 * var(--u)); }
+	.view-toggle[hidden] { display: none; } /* 让 hidden 属性生效（覆盖上面的 flex） */
 	.view-toggle button {
 		border: 0;
 		background: none;
@@ -1074,6 +1075,7 @@ const socialLinks = [
 		.site.is-cover .menu-button { display: none; }
 
 		.topbar { padding: 0 20px 0 64px; top: 18px; height: 28px; }
+		.view-toggle { display: none !important; } /* 窄屏不提供网格/行切换 */
 		.view-toggle img { height: 22px; }
 		.lang-switch { height: 22px; gap: 8px; }
 		.lang-en { height: 15px; }
