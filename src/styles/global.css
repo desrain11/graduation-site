@@ -91,8 +91,8 @@ a { color: inherit; }
 
 @media print {
 	@page {
-		size: A3 portrait;
-		margin: 10mm;
+		size: A3 landscape;
+		margin: 8mm;
 	}
 
 	html,
@@ -103,10 +103,6 @@ a { color: inherit; }
 		background: #fff6d7 !important;
 		-webkit-print-color-adjust: exact;
 		print-color-adjust: exact;
-	}
-
-	body {
-		min-width: 1440px;
 	}
 
 	img,
@@ -200,7 +196,7 @@ a { color: inherit; }
 	}
 
 	.page-cover {
-		padding: 14mm 14mm 12mm !important;
+		padding: 10mm !important;
 	}
 
 	.cover-inner {
@@ -208,12 +204,12 @@ a { color: inherit; }
 		min-height: 0 !important;
 		padding: 0 !important;
 		display: grid !important;
-		grid-template-columns: 1.25fr 0.85fr;
+		grid-template-columns: 1.1fr 0.9fr;
 		grid-template-areas:
 			"title info"
 			"menu photo"
 			"menu corner";
-		gap: 10mm 14mm;
+		gap: 8mm 12mm;
 		transform: none !important;
 		opacity: 1 !important;
 	}
@@ -224,18 +220,24 @@ a { color: inherit; }
 	}
 
 	.cover-title {
-		width: 150mm !important;
+		width: 105mm !important;
 		max-width: 100%;
 	}
 
 	.cover-info {
 		align-self: start;
 	}
+	.cover-info h2 {
+		font-size: 11pt !important;
+	}
+	.cover-info p {
+		font-size: 7.5pt !important;
+	}
 
 	.cover-photo {
 		grid-area: photo;
 		position: static !important;
-		width: 72mm !important;
+		width: 55mm !important;
 		max-width: 100%;
 		justify-self: end;
 	}
@@ -248,14 +250,17 @@ a { color: inherit; }
 
 	.cover-menu-row {
 		height: auto !important;
-		min-height: 18mm;
+		min-height: 12mm;
 		background: transparent !important;
 		color: #000 !important;
+		font-size: 17pt !important;
 		break-inside: avoid;
 		page-break-inside: avoid;
 	}
 
 	.cover-menu-star {
+		width: 5mm !important;
+		height: 5mm !important;
 		filter: none !important;
 	}
 
@@ -268,7 +273,7 @@ a { color: inherit; }
 	}
 
 	.cover-rat {
-		width: 42mm !important;
+		width: 26mm !important;
 	}
 
 	.cheese {
@@ -309,18 +314,30 @@ a { color: inherit; }
 	}
 
 	.detail-main {
-		padding: 16mm 14mm 14mm 14mm !important;
+		padding: 10mm !important;
 	}
 
 	.detail-heading,
 	.detail-subtitle {
 		text-align: left !important;
 	}
+	.detail-heading {
+		font-size: 20pt !important;
+		margin-bottom: 4mm !important;
+	}
+	.detail-subtitle {
+		font-size: 11pt !important;
+		margin: 0 0 6mm !important;
+	}
 
 	.detail-figures {
 		position: static !important;
 		top: auto !important;
 		margin-bottom: 10mm;
+	}
+	.detail-figures img {
+		max-height: 160mm;
+		object-fit: contain;
 	}
 
 	.detail-figures figure {
@@ -348,5 +365,32 @@ a { color: inherit; }
 	.copyright {
 		margin-top: 10mm !important;
 		padding-bottom: 0 !important;
+	}
+
+	.text-columns p,
+	.detail-body > p,
+	.text-list {
+		font-size: 10.5pt !important;
+		line-height: 1.45 !important;
+	}
+
+	.text-h2,
+	.ref-title {
+		font-size: 13pt !important;
+	}
+
+	.text-h3 {
+		font-size: 11.5pt !important;
+	}
+
+	.detail-meta,
+	.detail-references p,
+	.detail-figures figcaption,
+	.project-card-meta small,
+	.project-card-more,
+	.contact-detail,
+	.copyright,
+	.text-quote.is-nda-note {
+		font-size: 8pt !important;
 	}
 }
