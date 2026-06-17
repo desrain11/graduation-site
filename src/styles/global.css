@@ -88,3 +88,265 @@ img { user-select: none; }
 a { color: inherit; }
 
 ::selection { background: rgba(0, 0, 0, 0.85); color: var(--color-card-text); }
+
+@media print {
+	@page {
+		size: A3 portrait;
+		margin: 10mm;
+	}
+
+	html,
+	body {
+		height: auto !important;
+		overflow: visible !important;
+		overscroll-behavior: auto;
+		background: #fff6d7 !important;
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
+
+	body {
+		min-width: 1440px;
+	}
+
+	img,
+	svg,
+	canvas,
+	figure,
+	blockquote,
+	.project-card,
+	.contact-card,
+	.detail-figures figure {
+		break-inside: avoid;
+		page-break-inside: avoid;
+	}
+
+	a {
+		color: inherit !important;
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+
+	.topbar,
+	.menu-button,
+	.rat-scrollbar,
+	.flip-hint,
+	.view-toggle,
+	.lang-switch,
+	.figure-lightbox,
+	.scratch-hint {
+		display: none !important;
+	}
+
+	.sidebar {
+		display: none !important;
+	}
+
+	.site,
+	.detail-site {
+		height: auto !important;
+		min-height: 0 !important;
+		overflow: visible !important;
+		background: var(--paper-texture) top center / 100% auto repeat-y !important;
+	}
+
+	.track {
+		transform: none !important;
+		will-change: auto !important;
+		background: transparent !important;
+	}
+
+	.page,
+	.page-cover,
+	.page-content {
+		height: auto !important;
+		min-height: 0 !important;
+		break-after: page;
+		page-break-after: always;
+	}
+
+	.page:last-of-type,
+	.page-cover:last-of-type,
+	.page-content:last-of-type {
+		break-after: auto;
+		page-break-after: auto;
+	}
+
+	.page-gap {
+		display: none !important;
+	}
+
+	.page-content::before,
+	.detail-site::before,
+	.detail-top-fade {
+		display: none !important;
+	}
+
+	.page-scroll,
+	.page-body,
+	.detail-main {
+		position: static !important;
+		top: auto !important;
+		bottom: auto !important;
+		left: auto !important;
+		right: auto !important;
+		min-height: 0 !important;
+		height: auto !important;
+		overflow: visible !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		-webkit-mask-image: none !important;
+		mask-image: none !important;
+	}
+
+	.page-cover {
+		padding: 14mm 14mm 12mm !important;
+	}
+
+	.cover-inner {
+		height: auto !important;
+		min-height: 0 !important;
+		padding: 0 !important;
+		display: grid !important;
+		grid-template-columns: 1.25fr 0.85fr;
+		grid-template-areas:
+			"title info"
+			"menu photo"
+			"menu corner";
+		gap: 10mm 14mm;
+		transform: none !important;
+		opacity: 1 !important;
+	}
+
+	.cover-top {
+		grid-area: title / title / title / info;
+		align-items: start !important;
+	}
+
+	.cover-title {
+		width: 150mm !important;
+		max-width: 100%;
+	}
+
+	.cover-info {
+		align-self: start;
+	}
+
+	.cover-photo {
+		grid-area: photo;
+		position: static !important;
+		width: 72mm !important;
+		max-width: 100%;
+		justify-self: end;
+	}
+
+	.cover-menu {
+		grid-area: menu;
+		margin: 0 !important;
+		width: auto !important;
+	}
+
+	.cover-menu-row {
+		height: auto !important;
+		min-height: 18mm;
+		background: transparent !important;
+		color: #000 !important;
+		break-inside: avoid;
+		page-break-inside: avoid;
+	}
+
+	.cover-menu-star {
+		filter: none !important;
+	}
+
+	.cover-corner {
+		grid-area: corner;
+		position: static !important;
+		margin: 0 !important;
+		gap: 4mm !important;
+		align-items: flex-end !important;
+	}
+
+	.cover-rat {
+		width: 42mm !important;
+	}
+
+	.cheese {
+		position: absolute !important;
+		opacity: 1 !important;
+	}
+
+	.project-grid,
+	.detail-layout {
+		display: block !important;
+	}
+
+	.project-card {
+		display: block !important;
+		width: 100% !important;
+		aspect-ratio: auto !important;
+		margin: 0 0 10mm !important;
+	}
+
+	.project-card-media {
+		position: static !important;
+		display: block;
+		overflow: hidden;
+	}
+
+	.project-card-media img {
+		height: auto !important;
+		transform: none !important;
+	}
+
+	.project-card-bar {
+		position: static !important;
+		height: auto !important;
+		background: rgba(51, 51, 51, 0.92) !important;
+		-webkit-backdrop-filter: none !important;
+		backdrop-filter: none !important;
+		padding: 4mm !important;
+	}
+
+	.detail-main {
+		padding: 16mm 14mm 14mm 14mm !important;
+	}
+
+	.detail-heading,
+	.detail-subtitle {
+		text-align: left !important;
+	}
+
+	.detail-figures {
+		position: static !important;
+		top: auto !important;
+		margin-bottom: 10mm;
+	}
+
+	.detail-figures figure {
+		margin: 0 0 8mm !important;
+	}
+
+	.figure-zoom-trigger {
+		cursor: default !important;
+	}
+
+	.contact-cards {
+		display: grid !important;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 8mm !important;
+	}
+
+	.contact-card {
+		width: auto !important;
+	}
+
+	.scratch-cover {
+		display: none !important;
+	}
+
+	.copyright {
+		margin-top: 10mm !important;
+		padding-bottom: 0 !important;
+	}
+}
