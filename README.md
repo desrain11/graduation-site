@@ -1,62 +1,22 @@
-# Graduation Portfolio — Yunfei Hu
+# Graduation Portfolio
 
-毕业用学术作品集网站（2024.09 – 2026.09），基于 Astro 静态构建。
-与 `E:\Portfolio\portfolio-site`（通用作品集）完全独立，但共享同一套项目内容源。
+毕业站已经与 `E:\Portfolio\portfolio-site` 解绑，并冻结为独立内容源。
 
-## 内容管理
+## 现在的维护方式
 
-**项目内容不在本仓库维护。** 一律在旧站目录里管理，目录约定不变：
+- 项目内容直接维护在 `public/files/`
+- 首页静态文案维护在 `public/content/`
+- `npm run dev` 和 `npm run build` 不再从旧网站同步内容
 
-```
-E:\Portfolio\portfolio-site\public\files\Work_YYYY\<项目ID>\
-├── 01_cover\Info.txt        ← 项目元信息（Title / Time / Category / Role / ...）
-├── 01_cover\hero-image.png  ← 封面图
-└── ...
-```
+## 重要说明
 
-`npm run dev` / `npm run build` 前会自动执行 `scripts/sync-content.mjs`：
-按 Info.txt 的 Time 起始时间筛选 2024.09–2026.09 范围内的项目，
-镜像复制到本仓库 `public/files/`（**该目录为生成物，勿手动编辑**，但需提交 git 以便部署）。
+- 以后修改旧网站，不会再影响这个毕业站
+- 如果要改毕业站项目内容，直接改本仓库里的 `public/files/`
+- `npm run sync` 现在只是提示冻结状态，不会执行任何复制
 
-### Info.txt 新增字段：Category
+## Commands
 
-本站按设计稿把项目分三类，需要在每个项目的 Info.txt 中加一行：
-
-```
-Category: M11            ← 里程碑项目，可填 M11 / M12 / M21 / FMP（归入 Project > Main）
-Category: Course         ← 选修课项目（Project > Course）
-Category: Extracurricular ← 课外项目（Project > Extracurricular）
-```
-
-缺少该字段的项目暂时归入 Course，构建时会打印警告。旧站会忽略此字段，互不影响。
-
-## 本仓库内容目录（需要手动维护）
-
-```
-public/
-├── content/                 ← 四个文字板块（纯文本，空行分段）
-│   ├── identity.txt
-│   ├── vision.txt
-│   ├── expertise-areas.txt
-│   └── development.txt
-├── image/cover/             ← 封面照片等
-├── image/ui/                ← 小老鼠、奶酪洞、图标等 UI 素材
-├── fonts/                   ← 网页字体
-├── contact/                 ← 联系方式二维码（Wechat/Email/Linkedin/Dribbble）
-└── cv/                      ← 中英文 CV PDF
-```
-
-## 命令
-
-| 命令              | 说明                                   |
-| :---------------- | :------------------------------------- |
-| `npm install`     | 安装依赖                               |
-| `npm run sync`    | 手动同步项目内容（dev/build 前会自动跑）|
-| `npm run dev`     | 本地开发 `localhost:4321`              |
-| `npm run build`   | 构建到 `./dist/`                       |
-| `npm run preview` | 本地预览构建产物                       |
-
-## 设计稿
-
-Figma: https://www.figma.com/design/kPaWiu3MEv0lIOQBxvc4Qm/Portfolio-site
-实现进度与待确认细节见 `docs/design-checklist.md`。
+- `npm install`
+- `npm run dev`
+- `npm run build`
+- `npm run preview`

@@ -1,7 +1,7 @@
 ---
 title: ""AI Athlete""
 subtitle: "Business Strategy for AI-Supported Individual Sports Coaching"
-period: "DAM180 — Design Entrepreneurship"
+period: "DAM180 - Design Entrepreneurship"
 type: "Course Project"
 ---
 
@@ -12,7 +12,7 @@ Worked as part of a business consultancy project for AI Athletes, an AI-supporte
 ## Contribution to PI&V
 
 - By exploring a potentially viable commercial path for a new design concept, I began to understand how business can amplify and compound the impact of design over time.
-- I came to understand that UX design should not only serve individual user experience, but also help align products with a broader vision and business goals.
+- I came to understand that UX design should not only serve the individual user experience, but also help align products with a broader vision and business goals.
 
 ## Involved Expertise Areas
 

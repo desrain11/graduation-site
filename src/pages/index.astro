@@ -39,7 +39,7 @@ const contactCards = [
 ];
 
 const socialLinks = [
-	{ title: 'Wechat', icon: '/image/ui/Wechat.svg', href: undefined },
+	{ title: 'Wechat', icon: '/image/ui/Wechat.svg', copyValue: 'blueowl_fifi' },
 	{ title: 'Dribbble', icon: '/image/ui/Dribbble.svg', href: 'https://dribbble.com/Blueowlfifi' },
 	{ title: 'Email', icon: '/image/ui/email.svg', href: 'mailto:fiahu301@gmail.com' },
 	{ title: 'Linkedin', icon: '/image/ui/linkedin.svg', href: 'https://www.linkedin.com/in/yunfei-fia-hu-813b8b2b0/' },
@@ -63,7 +63,7 @@ const socialLinks = [
 				<img class="lang-en" src="/image/ui/EN.svg" alt="English" />
 				<img class="lang-divider" src="/image/ui/CN_EN.svg" alt="" aria-hidden="true" />
 				<button class="lang-cn" type="button" aria-label="中文版"><img src="/image/ui/CN.svg" alt="" aria-hidden="true" /></button>
-				<span class="lang-tip" role="status" aria-live="polite">敬请期待</span>
+				<span class="lang-tip" role="status" aria-live="polite">Browser translation is not available on this local page.</span>
 			</div>
 		</header>
 
@@ -104,11 +104,13 @@ const socialLinks = [
 							<img class="lang-en" src="/image/ui/EN.svg" alt="English" />
 							<img class="lang-divider" src="/image/ui/CN_EN.svg" alt="" aria-hidden="true" />
 							<button class="lang-cn" type="button" aria-label="中文版"><img src="/image/ui/CN.svg" alt="" aria-hidden="true" /></button>
-							<span class="lang-tip" role="status">敬请期待</span>
+							<span class="lang-tip" role="status">Browser translation is not available on this local page.</span>
 						</div>
 						<div class="cover-socials" aria-label="Social links">
 							{socialLinks.map((social) =>
-								social.href
+								social.copyValue
+									? <button class="cover-social-button" type="button" title={social.title} data-copy-value={social.copyValue} data-copy-label='"blueowl_fifi" copied'><img src={social.icon} alt={social.title} /></button>
+									: social.href
 									? <a href={social.href} target={social.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer" title={social.title}><img src={social.icon} alt={social.title} /></a>
 									: <span title={social.title}><img src={social.icon} alt={social.title} /></span>
 							)}
@@ -450,7 +452,33 @@ const socialLinks = [
 			button.addEventListener('click', () => {
 				const wrap = button.closest('[data-lang-switch]');
 				wrap?.classList.add('is-tip-visible');
-				window.setTimeout(() => wrap?.classList.remove('is-tip-visible'), 1600);
+				window.setTimeout(() => wrap?.classList.remove('is-tip-visible'), 2200);
+			});
+		});
+
+		document.querySelectorAll('[data-copy-value]').forEach((button) => {
+			button.addEventListener('click', async () => {
+				const value = button.getAttribute('data-copy-value');
+				if (!value) return;
+				try {
+					await navigator.clipboard.writeText(value);
+				} catch {
+					const temp = document.createElement('textarea');
+					temp.value = value;
+					temp.setAttribute('readonly', '');
+					temp.style.position = 'absolute';
+					temp.style.left = '-9999px';
+					document.body.appendChild(temp);
+					temp.select();
+					document.execCommand('copy');
+					temp.remove();
+				}
+
+				button.classList.add('is-copied');
+				window.clearTimeout(button.__copyToastTimer);
+				button.__copyToastTimer = window.setTimeout(() => {
+					button.classList.remove('is-copied');
+				}, 1600);
 			});
 		});
 
@@ -684,8 +712,8 @@ const socialLinks = [
 	.lang-cn img { display: block; height: calc(20 * var(--u)); }
 	.lang-tip {
 		position: absolute;
-		top: 130%;
 		right: 0;
+		bottom: calc(100% + 8px);
 		background: #333333;
 		color: #fff6d7;
 		font-size: 12px;
@@ -835,6 +863,32 @@ const socialLinks = [
 		gap: calc(20 * var(--u));
 		align-items: center;
 	}
+	.cover-social-button {
+		position: relative;
+		border: 0;
+		background: none;
+		padding: 0;
+		line-height: 0;
+		cursor: pointer;
+	}
+	.cover-social-button::after {
+		content: attr(data-copy-label);
+		position: absolute;
+		left: 50%;
+		bottom: calc(100% + 8px);
+		transform: translateX(-50%);
+		padding: 4px 10px;
+		border-radius: 999px;
+		background: rgba(51, 51, 51, 0.92);
+		color: #fff6d7;
+		font-size: calc(11 * var(--u));
+		line-height: 1.2;
+		white-space: nowrap;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 180ms ease;
+	}
+	.cover-social-button.is-copied::after { opacity: 1; }
 	.cover-socials img { display: block; width: calc(24 * var(--u)); height: calc(24 * var(--u)); }
 	.cover-socials a, .cover-socials span { line-height: 0; }
 

@@ -1,7 +1,7 @@
 ---
 title: ""Bathbobber""
 subtitle: "First-Time User Experience Redesign for Cold-Water Therapy Product"
-period: "DDM150 — User Experience Theory and Practice"
+period: "DDM150 - User Experience Theory and Practice"
 type: "Course Project"
 ---
 
@@ -11,7 +11,7 @@ This UX challenge focused on improving the first-time user experience of Bathbob
 
 ## Contribution to PI&V
 
-- The UX challenge made me more aware that UX when onboarding a new product shapes trust and readiness, not only usability.
+- The UX challenge made me more aware that UX in onboarding a new product shapes trust and readiness, not only usability.
 - UX became more clearly a bridge between user perspective, technology, and stakeholder expectations.
 
 ## Involved Expertise Areas
@@ -27,6 +27,3 @@ This UX challenge focused on improving the first-time user experience of Bathbob
 ## References
 
 <!-- Add ACM-format references with DOI below, matching [cite] markers in text above. -->
-<!-- Example:
-[^1]: Author, A. (Year). Title. *Venue*. https://doi.org/...
--->

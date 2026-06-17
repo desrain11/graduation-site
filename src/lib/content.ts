@@ -46,6 +46,78 @@ export type Figure = {
 	caption: string;
 };
 
+const FIGURE_CAPTION_OVERRIDES: Record<string, string[]> = {
+	'2024P01_balance': [
+		'Game Concepts',
+		'Game Flow Summary',
+		'Demo & Experience',
+	],
+	'2025P03_TacoTask': [
+		'System Interaction Logic Diagram',
+		'Test Procedure & toolkit set',
+		'Test Result',
+		'Main Findings',
+	],
+	'2025P01_Hola': [
+		'Test Procedure - AI Response Personalization',
+		'Control group: System-Tailored AI',
+		'Control group: User-Tailored AI',
+		"'Personalised Dimension' Recommendations",
+	],
+	'2026P01_Hola': [
+		'Iterations of personalisation dimensions',
+		'Interfaces for final test prototype',
+		'Test Pocedure & Result',
+		'Demo Day',
+	],
+	'2024P03_CDR': [
+		'PHASE I',
+		'PHASE II',
+		'Phase III',
+		'Ranking of feature requirements discussed in Design Studio',
+	],
+	'2024P02_DUIET': [
+		'Model breakdown diagram',
+		'Indicator light meanings',
+		'Prototype usage & testing',
+		'Other attempt in course - "LumiTile"',
+	],
+	'2025P07_Bathbobber': [
+		'Protential UBM',
+		'Protential User Persona',
+		'User Journey',
+		'App & Product Interface Design',
+	],
+	'2025P04_A-seat-for-bags': [
+		'Iteration 1',
+		'Iteration 2',
+		'Iteration 3',
+		'Iteration 4',
+	],
+	'2025P08_TheSleepSculptor': [
+		'Digital Twin Scenario Settings',
+		'Basic data collection structure',
+		'Digital Twin Panel',
+		'Bedroom Simulation',
+	],
+	'2025P05_LumiAlarm': [
+		'Co-Constructing Story Board',
+		'3 Days Field Test Set Up',
+		'Test Result',
+	],
+	'2025P02_AI Athlete': [
+		'Target market definition',
+		'Service model design',
+		'Commercial growth strategy',
+	],
+	'2025P06_The-EYE': [
+		"Step 1: Review the suspect's background",
+		'Step 2: Check the FRT analysis',
+		'Step 3: Make your own critical judgement',
+		'Team Bonding',
+	],
+};
+
 /** portfolio-content.md 顶部 YAML frontmatter 的元信息 */
 export type ProjectMeta = {
 	subtitle?: string;
@@ -201,9 +273,10 @@ export function getProjectsByCategory() {
 }
 
 /** 扫描 03-ea-contribution/fig_in_web 下的图片（命名如 <前缀>_web<N>.png），按 N 排序 */
-function getFigures(projectDir: string): Figure[] {
+function getFigures(projectId: string, projectDir: string): Figure[] {
 	const figDir = publicPathToFilePath(`${projectDir}/03-ea-contribution/fig_in_web`);
 	if (!existsSync(figDir)) return [];
+	const captionOverrides = FIGURE_CAPTION_OVERRIDES[projectId] ?? [];
 
 	return readdirSync(figDir)
 		.map((fileName) => {
@@ -224,7 +297,11 @@ function getFigures(projectDir: string): Figure[] {
 			} satisfies Figure;
 		})
 		.filter((figure): figure is Figure => Boolean(figure))
-		.sort((a, b) => a.index - b.index);
+		.sort((a, b) => a.index - b.index)
+		.map((figure, order) => ({
+			...figure,
+			caption: order > 0 ? (captionOverrides[order - 1] ?? figure.caption) : figure.caption,
+		}));
 }
 
 /** 拆分 portfolio-content.md 的 YAML frontmatter 与正文 */
@@ -253,7 +330,7 @@ export function getProjectDetails(): ProjectDetail[] {
 
 		return {
 			...project,
-			figures: getFigures(project.projectDir),
+			figures: getFigures(project.id, project.projectDir),
 			blocks: parseMarkdownBlocks(body),
 			meta,
 			dribbbleUrl: extractDribbbleUrl(body),
@@ -327,10 +404,14 @@ const escapeHtml = (value: string) =>
  */
 export function renderInline(text: string) {
 	return escapeHtml(text)
-		.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
+		.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, (_m, label: string, url: string) => {
+			// Dribbble 链接统一显示为引导文案
+			const display = /^dribbble$/i.test(label.trim()) ? 'More project details see Dribble' : label;
+			return `<a href="${url}" target="_blank" rel="noreferrer">${display}</a>`;
+		})
 		.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-		.replace(/\[\^(\d+)\]/g, '<sup class="cite-mark">$1</sup>')
-		.replace(/\[(\d+)\]/g, '<sup class="cite-mark">$1</sup>');
+		// 引用角标，保留方括号格式 [1]；一次匹配 [^1] 与 [1]，避免二次替换
+		.replace(/\[\^?(\d+)\]/g, '<sup class="cite-mark">[$1]</sup>');
 }
 
 /** EA 名称 → 色条代码（颜色见全局样式 .ea-*） */

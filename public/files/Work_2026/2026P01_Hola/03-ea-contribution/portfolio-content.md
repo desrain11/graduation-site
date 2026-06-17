@@ -1,7 +1,7 @@
 ---
-title: "Hola the AI Healing Chatbot — FMP"
+title: "Hola the AI Healing Chatbot - FMP"
 subtitle: "Exploring How User Control over AI Memory Strength Shapes Self-Disclosure Experiences"
-period: "FMP (Feb 2026 – Jun 2026)"
+period: "FMP (Feb 2026 - Jun 2026)"
 type: "Individual Design Research Project"
 mentor: "Jun Hu"
 client: "Nexo Intelligent Technology Co., Ltd."
@@ -13,11 +13,11 @@ The FMP builds on the design research from M2.1, shifting the focus from early p
 
 ## Contribution to PI&V
 
-This project reinforced that design should lead product development early — framing uncertain questions into researchable ones and feeding grounded insights back. In Hola, this meant shaping AI personalization from a design research perspective rather than treating it as a feature to copy. It also clarified that user-centered design in emotionally sensitive contexts requires careful interpretation of needs rather than open-ended user control over AI memory. This revealed a growth area for me in quantitative analysis, which I want to strengthen as I continue in AI product design.
+This project reinforced that design should lead product development early, framing uncertain questions into researchable ones and feeding grounded insights back. In Hola, this meant shaping AI personalization from a design research perspective rather than treating it as a feature to copy. It also clarified that user-centered design in emotionally sensitive contexts requires careful interpretation of needs rather than open-ended user control over AI memory. This revealed a growth area for me in quantitative analysis, which I want to strengthen as I continue in AI product design.
 
 ## Involved Expertise Areas
 
-- **U&S**: within-group field study, ACQ
+- **U&S**: within-group field study, ACQ/self-disclosure scales, thematic analysis, semi-structured interviews
 - **T&R**: five-level memory-strength mechanism design and specification, memory scheduling logic design (iOS prototype and pipeline implemented in collaboration with Nexo Intelligent Technology Co., Ltd.)
 - **C&A**: product interface and interaction design, memory-strength panel design
 - **MD&C**: Ebbinghaus-inspired computational model, paired t-test, Wilcoxon signed-rank test
@@ -27,7 +27,9 @@ This project reinforced that design should lead product development early — fr
 
 [Dribbble](https://dribbble.com/shots/27477486-Design-Memory-Personalization-for-Hola)
 
+> Details related to product feature design are not available for this project due to a Non-Disclosure Agreement (NDA).
+
 ## References
 
-[^1]: Ebbinghaus (1885), H. 2013. Memory: A Contribution to Experimental Psychology. Annals of Neurosciences. 20, 4 (Oct. 2013), 155–156. https://doi.org/10.5214/ans.0972.7531.200408
+[^1]: Ebbinghaus (1885), H. 2013. Memory: A Contribution to Experimental Psychology. Annals of Neurosciences. 20, 4 (Oct. 2013), 155-156. https://doi.org/10.5214/ans.0972.7531.200408
 [^2]: Zhong, W., Guo, L., Gao, Q., Ye, H. and Wang, Y. 2023. MemoryBank: Enhancing Large Language Models with Long-Term Memory. arXiv.

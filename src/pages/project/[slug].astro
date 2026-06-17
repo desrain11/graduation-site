@@ -41,6 +41,17 @@ const refBlocks = refHeadingIndex >= 0
 	? project.blocks.slice(refHeadingIndex + 1).filter((b) => b.type !== 'hr')
 	: [];
 const hasReferences = refBlocks.length > 0;
+
+function getEaMarkerCode(item: string) {
+	const prefix = item.match(/^\*\*([^*]+)\*\*/)?.[1]?.trim().toUpperCase();
+	if (!prefix) return '';
+	if (prefix.includes('C&A')) return 'ca';
+	if (prefix.includes('T&R')) return 'tr';
+	if (prefix.includes('U&S')) return 'us';
+	if (prefix.includes('B&E')) return 'be';
+	if (prefix.includes('MD&C')) return 'mdc';
+	return '';
+}
 ---
 
 <Layout clientRouter>
@@ -61,7 +72,7 @@ const hasReferences = refBlocks.length > 0;
 				<img class="lang-en" src="/image/ui/EN.svg" alt="English" />
 				<img class="lang-divider" src="/image/ui/CN_EN.svg" alt="" aria-hidden="true" />
 				<button class="lang-cn" type="button" aria-label="中文版"><img src="/image/ui/CN.svg" alt="" aria-hidden="true" /></button>
-				<span class="lang-tip" role="status" aria-live="polite">敬请期待</span>
+				<span class="lang-tip" role="status" aria-live="polite">Browser translation is not available on this local page.</span>
 			</div>
 		</header>
 
@@ -81,7 +92,16 @@ const hasReferences = refBlocks.length > 0;
 					<aside class="detail-figures">
 						{project.figures.map((figure) => (
 							<figure>
-								<img src={figure.src} alt={figure.caption} loading="lazy" />
+								<button
+									class="figure-zoom-trigger"
+									type="button"
+									data-figure-trigger
+									data-figure-src={figure.src}
+									data-figure-alt={figure.caption}
+									aria-label={`Open ${figure.caption} in fullscreen`}
+								>
+									<img src={figure.src} alt={figure.caption} loading="lazy" />
+								</button>
 								<figcaption>{figure.caption}</figcaption>
 							</figure>
 						))}
@@ -101,9 +121,9 @@ const hasReferences = refBlocks.length > 0;
 						block.type === 'hr' ? <hr class="text-rule" />
 						: block.type === 'h2' ? <h2 class="text-h2" set:html={renderInline(block.text)} />
 						: block.type === 'h3' ? <h3 class="text-h3" set:html={renderInline(block.text)} />
-						: block.type === 'quote' ? <blockquote class="text-quote" set:html={renderInline(block.text)} />
+						: block.type === 'quote' ? <blockquote class:list={['text-quote', { 'is-nda-note': /non-disclosure agreement|nda/i.test(block.text) }]} set:html={renderInline(block.text)} />
 						: block.type === 'subhead' ? <p class="text-subhead" set:html={renderInline(block.text)} />
-						: block.type === 'list' ? <ul class="text-list">{block.items.map((item) => <li set:html={renderInline(item)} />)}</ul>
+						: block.type === 'list' ? <ul class="text-list">{block.items.map((item) => <li class:list={['text-list-item', getEaMarkerCode(item) && `marker-${getEaMarkerCode(item)}`]} set:html={renderInline(item)} />)}</ul>
 						: <p set:html={renderInline(block.text)} />
 					))}
 					{bodyBlocks.length === 0 && (
@@ -124,6 +144,13 @@ const hasReferences = refBlocks.length > 0;
 				</article>
 			</div>
 		</main>
+		<div class="figure-lightbox" data-figure-lightbox hidden aria-hidden="true">
+			<div class="figure-lightbox-backdrop" data-figure-close></div>
+			<div class="figure-lightbox-panel" role="dialog" aria-modal="true" aria-label="Fullscreen image preview">
+				<button class="figure-lightbox-close" type="button" data-figure-close aria-label="Close fullscreen image preview">×</button>
+				<img class="figure-lightbox-image" data-figure-lightbox-image src="" alt="" />
+			</div>
+		</div>
 	</div>
 </Layout>
 
@@ -157,8 +184,10 @@ const hasReferences = refBlocks.length > 0;
 		align-items: center;
 		justify-content: space-between;
 		padding: 0 calc(56 * var(--u)) 0 calc(390 * var(--u));
+		pointer-events: none;
 		z-index: 40;
 	}
+	.detail-site .topbar > * { pointer-events: auto; }
 
 	/* 返回：24 号字 + Back 图标，固定不随内容滚动 */
 	.back-link {
@@ -272,6 +301,14 @@ const hasReferences = refBlocks.length > 0;
 		top: calc(120 * var(--u));
 	}
 	.detail-figures figure { margin: 0; }
+	.figure-zoom-trigger {
+		display: block;
+		width: 100%;
+		padding: 0;
+		border: 0;
+		background: none;
+		cursor: zoom-in;
+	}
 	.detail-figures img { display: block; width: 100%; border-radius: 4px; }
 	.detail-figures figcaption {
 		margin-top: calc(6 * var(--u));
@@ -336,6 +373,12 @@ const hasReferences = refBlocks.length > 0;
 		font-style: italic;
 		color: #4a4438;
 	}
+	.text-quote.is-nda-note {
+		font-size: calc(13 * var(--u));
+		line-height: 1.5;
+		color: rgba(51, 51, 51, 0.4);
+		border-left-color: rgba(51, 51, 51, 0.24);
+	}
 	.text-rule { margin: calc(26 * var(--u)) 0; border: 0; border-top: 1px solid rgba(51, 51, 51, 0.18); }
 	.text-list {
 		margin: 0 0 calc(18 * var(--u));
@@ -345,8 +388,84 @@ const hasReferences = refBlocks.length > 0;
 		color: #333333;
 	}
 	.text-list li { margin-bottom: calc(6 * var(--u)); }
+	.text-list-item.marker-ca,
+	.text-list-item.marker-tr,
+	.text-list-item.marker-us,
+	.text-list-item.marker-be,
+	.text-list-item.marker-mdc {
+		list-style: none;
+		position: relative;
+		padding-left: calc(20 * var(--u));
+	}
+	.text-list-item.marker-ca::before,
+	.text-list-item.marker-tr::before,
+	.text-list-item.marker-us::before,
+	.text-list-item.marker-be::before,
+	.text-list-item.marker-mdc::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0.58em;
+		width: calc(9 * var(--u));
+		height: calc(9 * var(--u));
+		border-radius: 1px;
+		transform: translateY(-50%);
+	}
+	.text-list-item.marker-ca::before { background: #b25656; }
+	.text-list-item.marker-tr::before { background: #c1a053; }
+	.text-list-item.marker-us::before { background: #6d9458; }
+	.text-list-item.marker-be::before { background: #5667b2; }
+	.text-list-item.marker-mdc::before { background: #9371a7; }
 
 	.placeholder-note { color: var(--color-muted); font-style: italic; }
+
+	.figure-lightbox {
+		position: fixed;
+		inset: 0;
+		z-index: 90;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: calc(32 * var(--u));
+	}
+	.figure-lightbox[hidden] { display: none; }
+	.figure-lightbox-backdrop {
+		position: absolute;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.6);
+	}
+	.figure-lightbox-panel {
+		position: relative;
+		z-index: 1;
+		width: min(calc(1280 * var(--u)), 100%);
+		max-height: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+	}
+	.figure-lightbox-image {
+		display: block;
+		width: 100%;
+		max-width: 100%;
+		max-height: calc(100dvh - 64px);
+		object-fit: contain;
+		border-radius: 6px;
+	}
+	.figure-lightbox-close {
+		position: absolute;
+		top: calc(12 * var(--u));
+		right: calc(12 * var(--u));
+		z-index: 2;
+		width: calc(40 * var(--u));
+		height: calc(40 * var(--u));
+		border: 0;
+		border-radius: 999px;
+		background: rgba(0, 0, 0, 0.45);
+		color: #ffffff;
+		font-size: calc(28 * var(--u));
+		line-height: 1;
+		cursor: pointer;
+	}
 
 	/* 窄屏：菜单按钮 + 图片收进文字流，与段落等宽 */
 	@media (max-width: 900px) {
@@ -365,6 +484,9 @@ const hasReferences = refBlocks.length > 0;
 		.detail-figures { position: static; order: 2; }
 		.detail-body { order: 1; }
 		.detail-body > p, .text-list { font-size: 16px; }
+		.text-quote.is-nda-note { font-size: 12px; }
+		.figure-lightbox { padding: 16px; }
+		.figure-lightbox-image { max-height: calc(100dvh - 32px); }
 	}
 </style>
 
@@ -375,12 +497,43 @@ const hasReferences = refBlocks.length > 0;
 			button.addEventListener('click', () => {
 				const wrap = button.closest('[data-lang-switch]');
 				wrap?.classList.add('is-tip-visible');
-				window.setTimeout(() => wrap?.classList.remove('is-tip-visible'), 1600);
+				window.setTimeout(() => wrap?.classList.remove('is-tip-visible'), 2200);
 			});
 		});
 
 		document.querySelector('[data-menu-button]')?.addEventListener('click', () => {
 			document.body.classList.toggle('menu-open');
+		});
+
+		const lightbox = document.querySelector('[data-figure-lightbox]');
+		const lightboxImage = document.querySelector('[data-figure-lightbox-image]');
+		if (!(lightbox instanceof HTMLElement) || !(lightboxImage instanceof HTMLImageElement)) return;
+
+		const closeLightbox = () => {
+			lightbox.hidden = true;
+			lightbox.setAttribute('aria-hidden', 'true');
+			document.body.style.overflow = '';
+		};
+
+		document.querySelectorAll('[data-figure-trigger]').forEach((trigger) => {
+			trigger.addEventListener('click', () => {
+				const src = trigger.getAttribute('data-figure-src');
+				const alt = trigger.getAttribute('data-figure-alt') ?? '';
+				if (!src) return;
+				lightboxImage.src = src;
+				lightboxImage.alt = alt;
+				lightbox.hidden = false;
+				lightbox.setAttribute('aria-hidden', 'false');
+				document.body.style.overflow = 'hidden';
+			});
+		});
+
+		lightbox.querySelectorAll('[data-figure-close]').forEach((node) => {
+			node.addEventListener('click', closeLightbox);
+		});
+
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape' && !lightbox.hidden) closeLightbox();
 		});
 	}
 
