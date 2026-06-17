@@ -7,8 +7,10 @@ import type { Project } from '../lib/content';
 const { main, course, extracurricular } = getProjectsByCategory();
 
 // 文字版块：PI&V 合并为单页（PIV.txt，Vision→Manifesto→Identity 结构）
+// 去掉 "Bio" 这个小标题，其正文直接作为开头段落显示
+const pivBlocks = getSectionBlocks('PIV').filter((b) => !(b.type === 'h2' && /^bio$/i.test(b.text)));
 const textPages = [
-	{ id: 'piv', heading: 'PI&V', file: 'PIV', blocks: getSectionBlocks('PIV') },
+	{ id: 'piv', heading: 'PI&V', file: 'PIV', blocks: pivBlocks },
 ];
 const tailTextPages = [
 	{ id: 'expertise', heading: 'Expertise Areas.', file: 'expertise-areas', blocks: getSectionBlocks('expertise-areas') },

@@ -8,7 +8,7 @@ Role: UX Designer
 
 Location: TU Campus, Eindhoven, Netherlands
 
-Client: ceehealth - Bathbobber
+Client: CEE.HEALTH - Bathbobber
 
 EA Involved：Creativity & Aesthetics/User & Society
 

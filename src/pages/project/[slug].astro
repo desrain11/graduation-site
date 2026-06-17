@@ -33,6 +33,14 @@ const metaItems = [
 	['Team', project.meta.members],
 	['Coach', project.meta.coach],
 ].filter(([, value]) => Boolean(value)) as [string, string][];
+
+// 把正文与 References 分区：References 标题之后的块归入 refBlocks；正文不含该段
+const refHeadingIndex = project.blocks.findIndex((b) => b.type === 'h2' && /^references$/i.test(b.text));
+const bodyBlocks = refHeadingIndex >= 0 ? project.blocks.slice(0, refHeadingIndex) : project.blocks;
+const refBlocks = refHeadingIndex >= 0
+	? project.blocks.slice(refHeadingIndex + 1).filter((b) => b.type !== 'hr')
+	: [];
+const hasReferences = refBlocks.length > 0;
 ---
 
 <Layout clientRouter>
@@ -89,7 +97,7 @@ const metaItems = [
 						</dl>
 					)}
 
-					{project.blocks.map((block) => (
+					{bodyBlocks.map((block) => (
 						block.type === 'hr' ? <hr class="text-rule" />
 						: block.type === 'h2' ? <h2 class="text-h2" set:html={renderInline(block.text)} />
 						: block.type === 'h3' ? <h3 class="text-h3" set:html={renderInline(block.text)} />
@@ -98,8 +106,20 @@ const metaItems = [
 						: block.type === 'list' ? <ul class="text-list">{block.items.map((item) => <li set:html={renderInline(item)} />)}</ul>
 						: <p set:html={renderInline(block.text)} />
 					))}
-					{project.blocks.length === 0 && (
+					{bodyBlocks.length === 0 && (
 						<p class="placeholder-note">（内容待填写：{project.projectDir}/03-ea-contribution/portfolio-content.md）</p>
+					)}
+
+					{hasReferences && (
+						<section class="detail-references">
+							<hr class="ref-divider" />
+							<h2 class="ref-title">References</h2>
+							{refBlocks.map((block) => (
+								block.type === 'list'
+									? <ul class="text-list">{block.items.map((item) => <li set:html={renderInline(item)} />)}</ul>
+									: <p set:html={renderInline(block.type === 'para' ? block.text : '')} />
+							))}
+						</section>
 					)}
 				</article>
 			</div>
@@ -269,6 +289,18 @@ const metaItems = [
 	.detail-body :global(strong) { font-weight: 700; }
 	.detail-body :global(a) { color: #1c1812; text-underline-offset: 3px; }
 	.detail-body :global(sup.cite-mark) { color: var(--color-muted); font-size: 0.7em; padding: 0 1px; }
+
+	/* References：正文末尾，分割线区隔，40% #333 */
+	.detail-references { margin-top: calc(36 * var(--u)); color: rgba(51, 51, 51, 0.4); }
+	.ref-divider { margin: 0 0 calc(20 * var(--u)); border: 0; border-top: 1px solid rgba(51, 51, 51, 0.4); }
+	.ref-title { margin: 0 0 calc(12 * var(--u)); font-size: calc(16 * var(--u)); font-weight: 700; }
+	.detail-references p {
+		margin: 0 0 calc(8 * var(--u));
+		font-size: calc(13 * var(--u));
+		line-height: 1.5;
+		word-break: break-word;
+	}
+	.detail-references :global(a) { color: inherit; }
 
 	/* 元信息表 */
 	.detail-meta {

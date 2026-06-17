@@ -181,14 +181,22 @@ export function getProjects(): Project[] {
 
 const MILESTONE_ORDER: Record<MilestoneCode, number> = { M11: 0, M12: 1, M21: 2, FMP: 3 };
 
+/** 项目起始时间排序键（year*100+month），用于新→旧排序 */
+function startKey(time: string) {
+	const m = time.match(/(\d{4})\s*[./-]\s*(\d{1,2})/);
+	return m ? Number(m[1]) * 100 + Number(m[2]) : 0;
+}
+
 export function getProjectsByCategory() {
 	const projects = getProjects();
+	const byNewest = (a: Project, b: Project) => startKey(b.info.time) - startKey(a.info.time) || b.id.localeCompare(a.id);
 	return {
+		// Main 按里程碑倒序（FMP→M21→M12→M11，即新→旧）
 		main: projects
 			.filter((project) => project.info.category === 'main')
-			.sort((a, b) => MILESTONE_ORDER[a.info.milestone ?? 'FMP'] - MILESTONE_ORDER[b.info.milestone ?? 'FMP']),
-		course: projects.filter((project) => project.info.category === 'course'),
-		extracurricular: projects.filter((project) => project.info.category === 'extracurricular'),
+			.sort((a, b) => MILESTONE_ORDER[b.info.milestone ?? 'M11'] - MILESTONE_ORDER[a.info.milestone ?? 'M11']),
+		course: projects.filter((project) => project.info.category === 'course').sort(byNewest),
+		extracurricular: projects.filter((project) => project.info.category === 'extracurricular').sort(byNewest),
 	};
 }
 
@@ -270,41 +278,36 @@ export type SectionBlock =
  * 首行 `# 大标题` 会被跳过（页面另有大标题）。
  */
 export function parseMarkdownBlocks(raw: string): SectionBlock[] {
-	return raw
-		.split(/\r?\n\s*\r?\n/) // 按空行分块
-		.map((block) => block.trim())
-		.filter((block) => Boolean(block) && !block.startsWith('（在此粘贴'))
-		.flatMap((block): SectionBlock[] => {
-			if (/^#\s/.test(block)) return []; // 跳过一级大标题
-			if (/^---+$/.test(block)) return [{ type: 'hr' }];
-			if (/^##\s/.test(block)) return [{ type: 'h2', text: block.replace(/^##\s+/, '') }];
-			if (/^###\s/.test(block)) return [{ type: 'h3', text: block.replace(/^###\s+/, '') }];
-			if (/^>\s/.test(block)) return [{ type: 'quote', text: block.replace(/^>\s?/gm, '').trim() }];
-			if (/^[-*]\s/.test(block)) {
-				const items = block.split(/\r?\n/).map((line) => line.replace(/^[-*]\s+/, '').trim()).filter(Boolean);
-				return [{ type: 'list', items }];
-			}
-			// 多行块（如 manifesto 的「**小标题** + 说明」）可能含一个加粗首行
-			const out: SectionBlock[] = [];
-			let paraBuffer: string[] = [];
-			const flush = () => {
-				if (paraBuffer.length) {
-					out.push({ type: 'para', text: paraBuffer.join(' ') });
-					paraBuffer = [];
-				}
-			};
-			for (const line of block.split(/\r?\n/)) {
-				const trimmed = line.trim();
-				if (/^\*\*[^*]+\*\*$/.test(trimmed)) {
-					flush();
-					out.push({ type: 'subhead', text: trimmed.replace(/^\*\*|\*\*$/g, '') });
-				} else {
-					paraBuffer.push(trimmed);
-				}
-			}
-			flush();
-			return out;
-		});
+	const lines = raw.replace(/<!--[\s\S]*?-->/g, '').split(/\r?\n/); // 先剥离 HTML 注释
+	const blocks: SectionBlock[] = [];
+	let para: string[] = [];
+	let listItems: string[] = [];
+	let quote: string[] = [];
+
+	const flushPara = () => {
+		const text = para.join(' ').trim();
+		if (text && !text.startsWith('（在此粘贴')) blocks.push({ type: 'para', text });
+		para = [];
+	};
+	const flushList = () => { if (listItems.length) blocks.push({ type: 'list', items: listItems }); listItems = []; };
+	const flushQuote = () => { if (quote.length) blocks.push({ type: 'quote', text: quote.join(' ') }); quote = []; };
+	const flushAll = () => { flushPara(); flushList(); flushQuote(); };
+
+	for (const rawLine of lines) {
+		const line = rawLine.trim();
+		if (!line) { flushAll(); continue; }
+		if (/^#\s/.test(line)) { flushAll(); continue; } // 跳过一级大标题
+		if (/^---+$/.test(line)) { flushAll(); blocks.push({ type: 'hr' }); continue; }
+		if (/^##\s/.test(line)) { flushAll(); blocks.push({ type: 'h2', text: line.replace(/^##\s+/, '') }); continue; }
+		if (/^###\s/.test(line)) { flushAll(); blocks.push({ type: 'h3', text: line.replace(/^###\s+/, '') }); continue; }
+		if (/^\[\^\d+\]:/.test(line)) { flushAll(); blocks.push({ type: 'para', text: line }); continue; } // 脚注各自成块
+		if (/^>\s?/.test(line)) { flushPara(); flushList(); quote.push(line.replace(/^>\s?/, '')); continue; }
+		if (/^[-*]\s/.test(line)) { flushPara(); flushQuote(); listItems.push(line.replace(/^[-*]\s+/, '')); continue; }
+		if (/^\*\*[^*]+\*\*$/.test(line)) { flushAll(); blocks.push({ type: 'subhead', text: line.replace(/^\*\*|\*\*$/g, '') }); continue; }
+		flushList(); flushQuote(); para.push(line);
+	}
+	flushAll();
+	return blocks;
 }
 
 /** 读取 public/content/<name>.txt 并解析为结构化块 */
