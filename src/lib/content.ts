@@ -201,11 +201,18 @@ function getFigures(projectDir: string): Figure[] {
 		.map((fileName) => {
 			if (!/\.(png|jpe?g|webp|gif|svg)$/i.test(fileName)) return undefined;
 			if (!statSync(join(figDir, fileName)).isFile()) return undefined;
+			// 末尾编号 = 出现顺序；caption = 文件名（去掉扩展名与 _webN/末尾数字，用作图中标题）
 			const index = Number(fileName.match(/_?web[\s_-]?(\d+)\./i)?.[1] ?? fileName.match(/(\d+)\./)?.[1] ?? 0);
+			const caption = fileName
+				.replace(/\.[^.]+$/, '')
+				.replace(/[_\s-]?web[_\s-]?\d+$/i, '')
+				.replace(/[_\s-]?\d+$/, '')
+				.replace(/[_-]+/g, ' ')
+				.trim();
 			return {
 				index,
 				src: encodePublicUrl(`${projectDir}/03-ea-contribution/fig_in_web/${fileName}`),
-				caption: `Figure ${index}`,
+				caption,
 			} satisfies Figure;
 		})
 		.filter((figure): figure is Figure => Boolean(figure))
@@ -312,14 +319,15 @@ const escapeHtml = (value: string) =>
 
 /**
  * 段内 Markdown → HTML（先转义）：
- * `[文本](url)` → 链接、`**加粗**` → strong、脚注 `[^N]` 与图号 `[N]` → 上标。
+ * `[文本](url)` → 链接、`**加粗**` → strong、引用角标 `[^N]` 与 `[N]` → 上标。
+ * （正文 [N] 是引用文献角标，非图片引用）
  */
 export function renderInline(text: string) {
 	return escapeHtml(text)
 		.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
 		.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-		.replace(/\[\^(\d+)\]/g, '<sup class="ref-mark">$1</sup>')
-		.replace(/\[(\d+)\]/g, '<sup class="fig-mark">$1</sup>');
+		.replace(/\[\^(\d+)\]/g, '<sup class="cite-mark">$1</sup>')
+		.replace(/\[(\d+)\]/g, '<sup class="cite-mark">$1</sup>');
 }
 
 /** EA 名称 → 色条代码（颜色见全局样式 .ea-*） */
