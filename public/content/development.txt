@@ -1,1 +1,5 @@
-（在此粘贴 Development 板块的正式英文文案，纯文本，空行分段）
+# Development
+
+Over the past two years, I have come to see design not only as a way to produce solutions, but also as a low-cost, flexible means of discovering problems, building shared visions, and exploring the unknown. I value reflective iteration because many critical insights and meaningful design experiences emerge not from constant execution, but from regularly stepping back and reinterpreting what the process reveals.
+
+In the next few years, I hope to work in product contexts related to AI, health, or education, deepening my experience in user research, experience design, and prototyping. Over time, I want to grow from interface-centered work toward broader system-level design, contributing to product direction and cross-stakeholder alignment, and ultimately to more integrated systems that connect user needs, product goals, and social wellbeing.

@@ -1,22 +1,22 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Sidebar from '../components/Sidebar.astro';
-import { formatProjectDate, getEaCode, getProjectsByCategory, getSectionText } from '../lib/content';
+import { formatProjectDate, getEaCode, getProjectsByCategory, getSectionBlocks, renderInline } from '../lib/content';
 import type { Project } from '../lib/content';
 
 const { main, course, extracurricular } = getProjectsByCategory();
 
+// 文字版块：PI&V 合并为单页（PIV.txt，Vision→Manifesto→Identity 结构）
 const textPages = [
-	{ id: 'identity', heading: 'Identity', file: 'identity', paragraphs: getSectionText('identity') },
-	{ id: 'vision', heading: 'Vision.', file: 'vision', paragraphs: getSectionText('vision') },
+	{ id: 'piv', heading: 'PI&V', file: 'PIV', blocks: getSectionBlocks('PIV') },
 ];
 const tailTextPages = [
-	{ id: 'expertise', heading: 'Expertise Areas.', file: 'expertise-areas', paragraphs: getSectionText('expertise-areas') },
-	{ id: 'development', heading: 'Development.', file: 'development', paragraphs: getSectionText('development') },
+	{ id: 'expertise', heading: 'Expertise Areas.', file: 'expertise-areas', blocks: getSectionBlocks('expertise-areas') },
+	{ id: 'development', heading: 'Development.', file: 'development', blocks: getSectionBlocks('development') },
 ];
 
 const coverMenu = [
-	{ label: 'PI&V', target: 'identity' },
+	{ label: 'PI&V', target: 'piv' },
 	{ label: 'Project', target: 'project-main' },
 	{ label: 'Expertise Areas', target: 'expertise' },
 	{ label: 'Development', target: 'development' },
@@ -117,7 +117,7 @@ const socialLinks = [
 
 			<div class="page-gap"></div>
 
-			<!-- ====== Identity / Vision ====== -->
+			<!-- ====== PI&V（Vision → Manifesto → Identity，单页） ====== -->
 			{textPages.map((page) => (
 				<>
 					<section class="page page-content" data-page={page.id}>
@@ -125,8 +125,15 @@ const socialLinks = [
 							<div class="page-body text-body">
 								<h2 class="page-heading">{page.heading}</h2>
 								<div class="text-columns">
-									{page.paragraphs.length > 0
-										? page.paragraphs.map((paragraph) => <p>{paragraph}</p>)
+									{page.blocks.length > 0
+										? page.blocks.map((block) => (
+											block.type === 'hr' ? <hr class="text-rule" />
+											: block.type === 'h2' ? <h3 class="text-h2" set:html={renderInline(block.text)} />
+											: block.type === 'h3' ? <h4 class="text-h3" set:html={renderInline(block.text)} />
+											: block.type === 'quote' ? <blockquote class="text-quote" set:html={renderInline(block.text)} />
+											: block.type === 'subhead' ? <p class="text-subhead" set:html={renderInline(block.text)} />
+											: <p set:html={renderInline(block.text)} />
+										))
 										: <p class="placeholder-note">（内容待填写：public/content/{page.file}.txt）</p>}
 								</div>
 							</div>
@@ -177,8 +184,15 @@ const socialLinks = [
 							<div class="page-body text-body">
 								<h2 class="page-heading">{page.heading}</h2>
 								<div class="text-columns">
-									{page.paragraphs.length > 0
-										? page.paragraphs.map((paragraph) => <p>{paragraph}</p>)
+									{page.blocks.length > 0
+										? page.blocks.map((block) => (
+											block.type === 'hr' ? <hr class="text-rule" />
+											: block.type === 'h2' ? <h3 class="text-h2" set:html={renderInline(block.text)} />
+											: block.type === 'h3' ? <h4 class="text-h3" set:html={renderInline(block.text)} />
+											: block.type === 'quote' ? <blockquote class="text-quote" set:html={renderInline(block.text)} />
+											: block.type === 'subhead' ? <p class="text-subhead" set:html={renderInline(block.text)} />
+											: <p set:html={renderInline(block.text)} />
+										))
 										: <p class="placeholder-note">（内容待填写：public/content/{page.file}.txt）</p>}
 								</div>
 							</div>
@@ -250,7 +264,7 @@ const socialLinks = [
 		function updateSidebarState() {
 			const id = ids[active];
 			const groupOf = {
-				identity: 'piv', vision: 'piv',
+				piv: 'piv',
 				'project-main': 'project', 'project-course': 'project', 'project-extracurricular': 'project',
 				expertise: 'expertise', development: 'development', contract: 'contract',
 			};
@@ -862,6 +876,42 @@ const socialLinks = [
 		line-height: 1.55;
 		text-align: justify;
 		color: #333333;
+	}
+	.text-columns :global(strong) { font-weight: 700; }
+
+	/* Markdown 块：小标题 / 次标题 / 引言 / 加粗小标题 / 分隔线 */
+	.text-h2 {
+		margin: calc(30 * var(--u)) 0 calc(14 * var(--u));
+		font-size: calc(24 * var(--u));
+		font-weight: 700;
+		color: #1c1812;
+	}
+	.text-h3 {
+		margin: calc(20 * var(--u)) 0 calc(10 * var(--u));
+		font-size: calc(20 * var(--u));
+		font-weight: 700;
+		color: #1c1812;
+	}
+	.text-subhead {
+		margin: calc(16 * var(--u)) 0 calc(4 * var(--u)) !important;
+		font-weight: 700;
+		font-size: calc(19 * var(--u));
+		color: #1c1812;
+		text-align: left !important;
+	}
+	.text-quote {
+		margin: calc(8 * var(--u)) 0 calc(18 * var(--u));
+		padding-left: calc(16 * var(--u));
+		border-left: calc(3 * var(--u)) solid rgba(51, 51, 51, 0.4);
+		font-size: calc(20 * var(--u));
+		font-style: italic;
+		line-height: 1.5;
+		color: #4a4438;
+	}
+	.text-rule {
+		margin: calc(28 * var(--u)) 0;
+		border: 0;
+		border-top: 1px solid rgba(51, 51, 51, 0.18);
 	}
 
 	.placeholder-note { color: var(--color-muted); font-style: italic; }

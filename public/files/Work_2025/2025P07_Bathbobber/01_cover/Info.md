@@ -1,0 +1,28 @@
+Title: Bathbobber: Improving the First-Time User Experience
+
+Time：2025.2-2025.4
+
+Project Type: Elective course project
+
+Role: UX Designer
+
+Location: TU Campus, Eindhoven, Netherlands
+
+Client: ceehealth - Bathbobber
+
+EA Involved：Creativity & Aesthetics/User & Society
+
+Abstract: Bathbobber is an existing product designed to support Cold Water Therapy for recreation and health. This project focused on improving the first-time user experience, especially how new users understand, set up, and interact with the Bathbobber system.
+The design process analyzed the current user journey, identified UX pain points, and explored opportunities to make the onboarding experience more intuitive and supportive. The solution aimed to create a smoother connection between the user, the mobile app, and the Bathbobber device during the initial use phase.
+Through a user-centered process, this project developed and tested design ideas that help reduce confusion, build user confidence, and provide a clearer introduction to the overall Bathbobber experience.
+
+CV_EN：
+No.
+
+CV_CN：
+No.
+
+Video?
+No.
+
+Category: Course

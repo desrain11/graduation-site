@@ -1,0 +1,26 @@
+Title: Lumi Alarm – A Physical Probe for Sleep Satisfaction
+
+Time：2025.4-2026.6
+
+Project Type: Elective course project
+
+Role: Data Features Designer
+
+Location: Eindhoven
+
+Client: -
+
+EA Involved：Technology & Realization/Math, Data & Computing
+
+Abstract: This study applied a Data-enabled Design approach to explore users' sleep context through probe deployment. The resulting Lumi Alarm, a light-based inform probe, aims to reduce non-sleep activities in bed and enhance the sleep experience by encouraging regular bedtime routines through responsive ambient light cues. A pilot test showed that reminders by light reduced non-sleep activities in bed, improved sleep efficiency, and increased user satisfaction with overall sleep activity.
+
+CV_EN：
+No.
+
+CV_CN：
+No.
+
+Video?
+No.
+
+Category: Course

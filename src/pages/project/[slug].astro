@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Sidebar from '../../components/Sidebar.astro';
-import { getProjectDetails, getProjectsByCategory } from '../../lib/content';
+import { getProjectDetails, getProjectsByCategory, renderInline } from '../../lib/content';
 import type { ProjectDetail } from '../../lib/content';
 
 export function getStaticPaths() {
@@ -24,14 +24,15 @@ const backTarget = {
 	extracurricular: { hash: 'project-extracurricular', label: 'Back to Project/Extracurricular' },
 }[project.info.category];
 
-const figureByIndex = new Map(project.figures.map((figure) => [figure.index, figure]));
-
-const escapeHtml = (value: string) =>
-	value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
-// 段落内的 figure~N 标记替换为 (Figure N)
-const renderParagraph = (text: string) =>
-	escapeHtml(text).replace(/figure\s*~\s*(\d+)/gi, '<em class="figure-ref">(Figure $1)</em>');
+// 元信息行：取 frontmatter（缺省回落到 Info.md）
+const metaItems = [
+	['Period', project.meta.period || project.info.time],
+	['Type', project.meta.type || project.info.projectType],
+	['Role', project.info.role],
+	['Client', project.meta.client || project.info.client],
+	['Team', project.meta.members],
+	['Coach', project.meta.coach],
+].filter(([, value]) => Boolean(value)) as [string, string][];
 ---
 
 <Layout clientRouter>
@@ -64,32 +65,44 @@ const renderParagraph = (text: string) =>
 					? <a href={project.dribbbleUrl} target="_blank" rel="noreferrer" title="View this project on Dribbble">{project.displayTitle}.</a>
 					: `${project.displayTitle}.`}
 			</h1>
+			{project.meta.subtitle && <p class="detail-subtitle">{project.meta.subtitle}</p>}
 
-			<article class="detail-blocks">
-				{project.blocks.map((block) => {
-					const figures = block.figureRefs
-						.map((index) => figureByIndex.get(index))
-						.filter((figure) => Boolean(figure));
-					return (
-						<div class:list={['detail-row', { 'has-figures': figures.length > 0 }]}>
-							{figures.length > 0 && (
-								<div class="detail-figures">
-									{figures.map((figure) => (
-										<figure>
-											<img src={figure.src} alt={figure.caption} loading="lazy" />
-											<figcaption>{figure.caption}</figcaption>
-										</figure>
-									))}
-								</div>
-							)}
-							<p set:html={renderParagraph(block.text)} />
-						</div>
-					);
-				})}
-				{project.blocks.length === 0 && (
-					<p class="placeholder-note">（内容待填写：{project.projectDir}/03-ea-contribution/ea-contribution.txt）</p>
+			<div class="detail-layout">
+				<!-- 左栏：fig_in_web 图片，按编号顺序排列 -->
+				{project.figures.length > 0 && (
+					<aside class="detail-figures">
+						{project.figures.map((figure) => (
+							<figure>
+								<img src={figure.src} alt={figure.caption} loading="lazy" />
+								<figcaption>{figure.caption}</figcaption>
+							</figure>
+						))}
+					</aside>
 				)}
-			</article>
+
+				<article class="detail-body">
+					{metaItems.length > 0 && (
+						<dl class="detail-meta">
+							{metaItems.map(([label, value]) => (
+								<div><dt>{label}</dt><dd>{value}</dd></div>
+							))}
+						</dl>
+					)}
+
+					{project.blocks.map((block) => (
+						block.type === 'hr' ? <hr class="text-rule" />
+						: block.type === 'h2' ? <h2 class="text-h2" set:html={renderInline(block.text)} />
+						: block.type === 'h3' ? <h3 class="text-h3" set:html={renderInline(block.text)} />
+						: block.type === 'quote' ? <blockquote class="text-quote" set:html={renderInline(block.text)} />
+						: block.type === 'subhead' ? <p class="text-subhead" set:html={renderInline(block.text)} />
+						: block.type === 'list' ? <ul class="text-list">{block.items.map((item) => <li set:html={renderInline(item)} />)}</ul>
+						: <p set:html={renderInline(block.text)} />
+					))}
+					{project.blocks.length === 0 && (
+						<p class="placeholder-note">（内容待填写：{project.projectDir}/03-ea-contribution/portfolio-content.md）</p>
+					)}
+				</article>
+			</div>
 		</main>
 	</div>
 </Layout>
@@ -216,44 +229,95 @@ const renderParagraph = (text: string) =>
 	.detail-heading a { text-decoration: none; }
 	.detail-heading a:hover { text-decoration: underline; }
 
-	.detail-row {
+	.detail-subtitle {
+		margin: calc(-28 * var(--u)) 0 calc(36 * var(--u));
+		text-align: right;
+		font-size: calc(18 * var(--u));
+		font-style: italic;
+		color: var(--color-ink-soft);
+	}
+
+	/* 左图右文两栏 */
+	.detail-layout {
 		display: grid;
 		grid-template-columns: calc(340 * var(--u)) 1fr;
 		column-gap: calc(48 * var(--u));
-		margin-bottom: calc(24 * var(--u));
+		align-items: start;
 	}
-	.detail-row > p {
-		grid-column: 2;
-		margin: 0;
-		font-size: calc(19 * var(--u));
-		line-height: 1.55;
-		text-align: justify;
-		color: #333333;
-	}
-
 	.detail-figures {
-		grid-column: 1;
 		display: flex;
 		flex-direction: column;
 		gap: calc(20 * var(--u));
+		position: sticky;
+		top: calc(120 * var(--u));
 	}
 	.detail-figures figure { margin: 0; }
-	.detail-figures img {
-		display: block;
-		width: 100%;
-		border-radius: 4px;
-	}
+	.detail-figures img { display: block; width: 100%; border-radius: 4px; }
 	.detail-figures figcaption {
 		margin-top: calc(6 * var(--u));
 		font-size: calc(13 * var(--u));
 		color: var(--color-ink-soft);
 	}
 
-	.figure-ref { font-style: italic; opacity: 0.75; }
+	.detail-body > p {
+		margin: 0 0 calc(18 * var(--u));
+		font-size: calc(18 * var(--u));
+		line-height: 1.55;
+		text-align: justify;
+		color: #333333;
+	}
+	.detail-body :global(strong) { font-weight: 700; }
+	.detail-body :global(a) { color: #1c1812; text-underline-offset: 3px; }
+	.detail-body :global(sup.fig-mark) { color: #8c2f23; font-weight: 700; padding: 0 1px; }
+	.detail-body :global(sup.ref-mark) { color: var(--color-muted); }
+
+	/* 元信息表 */
+	.detail-meta {
+		margin: 0 0 calc(28 * var(--u));
+		display: grid;
+		grid-template-columns: max-content 1fr;
+		column-gap: calc(20 * var(--u));
+		row-gap: calc(6 * var(--u));
+		font-size: calc(14 * var(--u));
+	}
+	.detail-meta > div { display: contents; }
+	.detail-meta dt { color: var(--color-muted); }
+	.detail-meta dd { margin: 0; color: #333333; }
+
+	/* Markdown 块（与首页文字版块同款） */
+	.text-h2 {
+		margin: calc(30 * var(--u)) 0 calc(12 * var(--u));
+		font-size: calc(22 * var(--u));
+		font-weight: 700;
+		color: #1c1812;
+	}
+	.text-h3 {
+		margin: calc(20 * var(--u)) 0 calc(10 * var(--u));
+		font-size: calc(19 * var(--u));
+		font-weight: 700;
+		color: #1c1812;
+	}
+	.text-subhead { margin: calc(14 * var(--u)) 0 calc(4 * var(--u)); font-weight: 700; color: #1c1812; }
+	.text-quote {
+		margin: calc(8 * var(--u)) 0 calc(18 * var(--u));
+		padding-left: calc(16 * var(--u));
+		border-left: calc(3 * var(--u)) solid rgba(51, 51, 51, 0.4);
+		font-style: italic;
+		color: #4a4438;
+	}
+	.text-rule { margin: calc(26 * var(--u)) 0; border: 0; border-top: 1px solid rgba(51, 51, 51, 0.18); }
+	.text-list {
+		margin: 0 0 calc(18 * var(--u));
+		padding-left: calc(22 * var(--u));
+		font-size: calc(18 * var(--u));
+		line-height: 1.5;
+		color: #333333;
+	}
+	.text-list li { margin-bottom: calc(6 * var(--u)); }
 
 	.placeholder-note { color: var(--color-muted); font-style: italic; }
 
-	/* 窄屏：菜单按钮 + figure 收进文字流，与段落等宽 */
+	/* 窄屏：菜单按钮 + 图片收进文字流，与段落等宽 */
 	@media (max-width: 900px) {
 		.menu-button { display: block; }
 		.detail-site .topbar { padding: 0 20px 0 64px; top: 18px; height: 28px; }
@@ -264,10 +328,12 @@ const renderParagraph = (text: string) =>
 		.lang-divider { height: 22px; }
 		.lang-cn img { height: 18px; }
 		.detail-main { padding: 84px 24px 64px; }
-		.detail-row { display: flex; flex-direction: column; gap: 16px; }
-		.detail-figures { order: 2; }
-		.detail-row > p { order: 1; }
 		.detail-heading { font-size: 26px; }
+		.detail-subtitle { font-size: 15px; margin-top: -12px; }
+		.detail-layout { display: flex; flex-direction: column; gap: 20px; }
+		.detail-figures { position: static; order: 2; }
+		.detail-body { order: 1; }
+		.detail-body > p, .text-list { font-size: 16px; }
 	}
 </style>
 

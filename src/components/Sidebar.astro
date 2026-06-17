@@ -28,14 +28,10 @@ const isGroupOpen = (groupId: string) => activePage === groupId || slugGroup ===
 	</a>
 
 	<nav class="sidebar-nav" aria-label="Sections">
-		<div class:list={['nav-group', { 'is-open': activePage === 'identity' || activePage === 'vision' }]} data-nav-group="piv">
-			<a class="nav-top" href="/#identity" data-nav-link data-nav-target="identity">
+		<div class:list={['nav-group', 'nav-leaf', { 'is-open': activePage === 'piv' }]} data-nav-group="piv">
+			<a class="nav-top" href="/#piv" data-nav-link data-nav-target="piv">
 				<span class="nav-marker" aria-hidden="true"></span>PI&amp;V
 			</a>
-			<div class="nav-subs">
-				<a class:list={['nav-sub', { 'is-active': activePage === 'identity' }]} href="/#identity" data-nav-link data-nav-target="identity">Identity</a>
-				<a class:list={['nav-sub', { 'is-active': activePage === 'vision' }]} href="/#vision" data-nav-link data-nav-target="vision">Vision</a>
-			</div>
 		</div>
 
 		<div class:list={['nav-group', { 'is-open': isProjectPage }]} data-nav-group="project">

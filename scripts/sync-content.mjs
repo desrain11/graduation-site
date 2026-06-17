@@ -52,9 +52,11 @@ for (const yearDir of readdirSync(SOURCE_ROOT)) {
 		const projectPath = join(yearPath, projectId);
 		if (!statSync(projectPath).isDirectory()) continue;
 
-		const infoPath = join(projectPath, '01_cover', 'Info.txt');
+		const infoMd = join(projectPath, '01_cover', 'Info.md');
+		const infoTxt = join(projectPath, '01_cover', 'Info.txt');
+		const infoPath = existsSync(infoMd) ? infoMd : infoTxt;
 		if (!existsSync(infoPath)) {
-			skipped.push(`${yearDir}/${projectId} (缺少 Info.txt)`);
+			skipped.push(`${yearDir}/${projectId} (缺少 Info.md)`);
 			continue;
 		}
 

@@ -1,0 +1,50 @@
+# PI&V — Professional Identity & Vision
+
+## Bio
+
+Hi! I'm Yunfei Hu, a UX designer and researcher born in China, currently based in Eindhoven, the Netherlands. I position myself as a designer who seeks to enhance everyday happiness through playful and meaningful details. By shifting perspectives and empathizing with users, I explore not only how people behave, but also the underlying motivations behind their actions.
+
+---
+
+## Vision (What)
+
+> "Design should lead — before the problem grows, before the system is built."
+
+My journey in design began with learning to create compelling forms, narratives, and experiences. But across my projects — in rehabilitation, education, digital behavior, and emotional well-being — I kept finding myself unsatisfied with design that only looked good. I wanted it to actually change something.
+
+This led me to ask: what does useful design mean? Looking back at my work, I noticed a recurring pattern. In each project, the difficulty was already there — unavoidable. A child with cerebral palsy must do rehabilitation. A student faces graduation pressure regardless of how they feel. A family managing homework tension cannot simply opt out. The question was never whether to face these situations. It was how to make them feel less like a burden and more like something worth engaging with. My instinct became: if you cannot remove the difficulty, can you at least make it easier to go through?
+
+Over time, though, my practice drew me to a different question. Beyond making hard situations more bearable, how might design prevent them from escalating in the first place? Rather than arriving after the problem has grown, design can create conditions that support people earlier — when small actions still matter and the threshold for engagement is still low. My current focus on AI-enabled emotional well-being comes from this shift: exploring how everyday interactions with AI can help people notice what they are feeling, understand what they need, and act before difficulties accumulate.
+
+And through working in product teams, I have come to believe that this is only possible when design is involved in building the system from the beginning — not called in at the visual finish line. Compared to lengthy technical development, design can iterate quickly, explore problems, and give a team a shared picture of what they are building toward. Design should run ahead, connecting user needs, product vision, and business goals — drawing out the shared target clearly enough that the whole team can work toward it together.
+
+---
+
+## My UX Manifesto (How)
+
+To me, UX is not only about making products easier to use. It is about making meaningful actions easier to take. Therefore, I believe UX design should be:
+
+**Embedded in Everyday Life**
+The most impactful interventions fit naturally into existing routines rather than demanding additional effort. If a design requires people to step outside their life to engage with it, it will be set aside.
+
+**Supporting Agency**
+Design should heighten people's awareness of their own state and needs, and make the choices available to them visible and reachable. Every step forward should be driven by inner motivation — not by external pressure or obligation.
+
+**Lowering Barriers**
+Technology should always serve people, not replace them. We design with and for technology to reduce the emotional, cognitive, and practical effort required to engage with behaviors that genuinely benefit someone's life.
+
+Building on these principles, my next step is to work within cross-disciplinary teams — building shared understanding of user needs, product direction, and business goals together.
+
+---
+
+## Professional Identity (Who)
+
+> "Experience for design, design for experience."
+
+As a designer, I see my role as identifying these hidden barriers and transforming them into opportunities for support. Through research, systems thinking, and human-centered design, I aim to create experiences that make positive actions more approachable, sustainable, and accessible.
+
+I am an observer: I approach users, observe events, experience life, and reflect on experiences. This process of deep empathy shapes my individuality as a designer beyond fundamental design thinking. My work seeks to uncover subtle and often unheard perspectives from individuals, deconstruct the problems behind them, and reconstruct new experiences. I believe that good communication — often ignored — is the foundation of mutual understanding and a source of unexpected inspiration and creativity.
+
+I am a collaborator: Design is collaboration among creators. Working with others offers me valuable opportunities to exchange perspectives — not only from diverse professional backgrounds, but also from personal stories that enrich the design process. Design is also collaboration with society and users. Experiences rooted in local cultures and ways of thinking can generate specific contributions to larger, global goals.
+
+I am a connector: my goal is to help bridge roles within a team and build a shared understanding of how a product best serves users. By visualizing concepts and developing prototypes, I integrate stakeholder perspectives and help align the team toward a shared direction.

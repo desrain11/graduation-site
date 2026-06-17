@@ -1,1 +1,57 @@
-（在此粘贴 Expertise Areas 板块的正式英文文案，纯文本，空行分段）
+# Expertise Areas
+
+---
+
+## User & Society (U&S)
+
+User & Society has been the expertise area most consistently developed across my master's projects. Understanding why people behave as they do has driven my research choices, leading me to prioritize methods that surface implicit motivations over those that simply confirm assumptions.
+
+Across projects in rehabilitation, education, and AI-supported well-being, I moved from contextual observation toward more structured research designs: field observation (Balance Stompers), co-constructing stories and Wizard of Oz tests (TacoTask), scale-based comparisons (Hola M2.1), and within-subjects evaluations with thematic analysis (Hola FMP). I increasingly learned to choose methods according to design stage and the kind of knowledge needed.
+
+In TacoTask, expert feedback reframed the concept away from monitoring-based design, while in Hola M2.1, it reshaped personalization toward more carefully bounded dimensions.
+
+What I want to experience next is how user research works in industry, where iteration moves faster and research must serve ongoing product decisions more directly than in academic settings.
+
+---
+
+## Technology & Realization (T&R)
+
+Technology & Realization supports my role as a designer who bridges user insights, product direction, and development decisions. A central part of this practice has been translating research insights into readable design artifacts such as personas, user journeys, interaction flows, and high-fidelity prototypes, then using those artifacts both as research instruments and as shared references for teams.
+
+To achieve this, Figma has been my main realization medium, especially in mobile product-oriented projects such as Hola, where prototypes supported expert review, user testing, and development communication. I also explored Wizard of Oz testing, probe development, and lightweight web coding, which allowed me to prototype behaviors before full implementation was possible.
+
+In Hola, I noticed a gap between intended design and front-end outcome. My next step is to realize interface designs more directly in front-end environments, so less quality is lost when interfaces are rebuilt during development.
+
+---
+
+## Math, Data & Computing (MDC)
+
+Math, Data & Computing has played four distinct roles across my projects: as a source of design inspiration, as research data collected from users and environments, as the logic underlying research instruments, and as a compass for steering design direction.
+
+For example, in Hola FMP, the Ebbinghaus forgetting curve provided both the computational model for memory scheduling and the conceptual frame for the interaction design, translating a mathematical principle into a five-level user-facing control mechanism. In Hola and LumiAlarm, I applied and interpreted scales, diary entries, sensor data, and interview responses. Also the thematic analysis, as a systematic method for structuring qualitative data, has also been central to deriving design implications from user feedback. Across projects, data has consistently redirected design direction rather than simply confirming it.
+
+What I want to strengthen is greater independence in selecting and applying statistical methods.
+
+---
+
+## Creativity & Aesthetics (C&A)
+
+Creativity & Aesthetics in my work is not only about visual style, but about shaping how an experience is understood and felt before it is explained.
+
+My aesthetic decisions are grounded in users' age, context, and the emotional qualities a product should convey. In Hola, these informed a low-saturation, high-brightness interface with rounded forms and a 2.5D avatar. In TacoTask, paper-strip length made time graspable for children rather than abstract numbers.
+
+Meanwhile, I have also learned that aesthetic choices must convey positive values and avoid negative impacts: in Balance Stompers, a realistic cockroach-stomping concept was replaced after feedback suggested it felt too violent for children.
+
+What I still want to strengthen is a more systematic way of judging visual decisions, instead of relying mainly on precedent, references, or my own accumulated experience.
+
+---
+
+## Business & Entrepreneurship (B&E)
+
+Business & Entrepreneurship has not been my strongest expertise area, but it has become increasingly important in how I position design within product development.
+
+The most direct application came through AI Athletes, where I applied the Behaviour Change Wheel, COM-B analysis, and Business Model Growth Map to develop a commercial strategy. This included interviews with athletes and coaches, competitive analysis of the Dutch sports market, and a reframed value proposition around individual users' accessibility barriers. Identifying privacy risks around video recording, and proposing usage controls as a design response, showed how B&E intersects with product trust decisions.
+
+In Hola, the Business Model Growth Map aligned design research direction with the startup's commercial priorities, helping position UX research as something that should inform feature sequencing rather than follow it.
+
+Strengthening this area is important to my next stage, as working toward systems that connect user needs, product direction, and social impact requires a stronger B&E perspective.

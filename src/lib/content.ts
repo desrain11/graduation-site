@@ -46,15 +46,20 @@ export type Figure = {
 	caption: string;
 };
 
-/** ea-contribution 的一个段落，figureRefs 为该段引用的图号 */
-export type ContributionBlock = {
-	text: string;
-	figureRefs: number[];
+/** portfolio-content.md 顶部 YAML frontmatter 的元信息 */
+export type ProjectMeta = {
+	subtitle?: string;
+	period?: string;
+	type?: string;
+	members?: string;
+	coach?: string;
+	client?: string;
 };
 
 export type ProjectDetail = Project & {
 	figures: Figure[];
-	blocks: ContributionBlock[];
+	blocks: SectionBlock[];
+	meta: ProjectMeta;
 	dribbbleUrl?: string;
 };
 
@@ -96,11 +101,14 @@ function shortenTitle(title: string) {
 export function parseProjectInfo(text: string): ProjectInfo {
 	const values = new Map<string, string>();
 
+	// Markdown 转义还原（\& → &、\- → -、\_ → _ 等）
+	const unescapeMd = (value: string) => value.replace(/\\([&_\-[\]()#*])/g, '$1');
+
 	// 兼容半角/全角冒号与历史乱码（"Time锛?…"）
 	text.split(/\r?\n/).forEach((line) => {
 		const match = line.match(/^(.+?)(?:[:：]|锛[?歖欝])\s*(.*)$/);
 		if (!match) return;
-		values.set(match[1].trim().toLowerCase(), match[2].trim());
+		values.set(match[1].trim().toLowerCase(), unescapeMd(match[2].trim()));
 	});
 
 	const eaInvolved = (values.get('ea involved') ?? '')
@@ -142,14 +150,16 @@ export function getProjects(): Project[] {
 					if (!statSync(projectPath).isDirectory()) return undefined;
 
 					const projectDir = `/files/${yearDir}/${projectId}`;
-					const infoFile = publicPathToFilePath(`${projectDir}/01_cover/Info.txt`);
+					const infoMd = publicPathToFilePath(`${projectDir}/01_cover/Info.md`);
+					const infoTxt = publicPathToFilePath(`${projectDir}/01_cover/Info.txt`);
+					const infoFile = existsSync(infoMd) ? infoMd : infoTxt;
 					const coverFile = publicPathToFilePath(`${projectDir}/01_cover/hero-image.png`);
 					if (!existsSync(infoFile) || !existsSync(coverFile)) return undefined;
 
 					const infoText = readFileSync(infoFile, 'utf-8');
 					const info = parseProjectInfo(infoText);
 					if (!/^category/im.test(infoText)) {
-						console.warn(`[content] ${projectId} 的 Info.txt 缺少 Category 字段，暂归入 Course`);
+						console.warn(`[content] ${projectId} 的 Info 文件缺少 Category 字段，暂归入 Course`);
 					}
 
 					const shortTitle = shortenTitle(info.title);
@@ -182,80 +192,134 @@ export function getProjectsByCategory() {
 	};
 }
 
-/** 扫描 02-storyline 下的 figure-N.* 图片（兼容 figure1 / Figure_1 / figure 1 等写法） */
+/** 扫描 03-ea-contribution/fig_in_web 下的图片（命名如 <前缀>_web<N>.png），按 N 排序 */
 function getFigures(projectDir: string): Figure[] {
-	const storylinePath = publicPathToFilePath(`${projectDir}/02-storyline`);
-	if (!existsSync(storylinePath)) return [];
+	const figDir = publicPathToFilePath(`${projectDir}/03-ea-contribution/fig_in_web`);
+	if (!existsSync(figDir)) return [];
 
-	return readdirSync(storylinePath)
+	return readdirSync(figDir)
 		.map((fileName) => {
-			const match = fileName.match(/^figure[\s_-]?(\d+)\.(png|jpe?g|webp|gif|svg)$/i);
-			if (!match || !statSync(join(storylinePath, fileName)).isFile()) return undefined;
+			if (!/\.(png|jpe?g|webp|gif|svg)$/i.test(fileName)) return undefined;
+			if (!statSync(join(figDir, fileName)).isFile()) return undefined;
+			const index = Number(fileName.match(/_?web[\s_-]?(\d+)\./i)?.[1] ?? fileName.match(/(\d+)\./)?.[1] ?? 0);
 			return {
-				index: Number(match[1]),
-				src: encodePublicUrl(`${projectDir}/02-storyline/${fileName}`),
-				caption: `Figure ${match[1]}`,
+				index,
+				src: encodePublicUrl(`${projectDir}/03-ea-contribution/fig_in_web/${fileName}`),
+				caption: `Figure ${index}`,
 			} satisfies Figure;
 		})
 		.filter((figure): figure is Figure => Boolean(figure))
 		.sort((a, b) => a.index - b.index);
 }
 
-/** 解析 ea-contribution.txt：分段并提取每段中的 figure~N 引用 */
-function parseContribution(text: string): ContributionBlock[] {
-	return text
-		.trim()
-		.split(/\r?\n+/)
-		.map((paragraph) => paragraph.trim())
-		.filter(Boolean)
-		.map((paragraph) => {
-			const figureRefs = Array.from(paragraph.matchAll(/figure\s*~\s*(\d+)/gi), (m) => Number(m[1]));
-			return { text: paragraph, figureRefs: Array.from(new Set(figureRefs)) };
-		});
+/** 拆分 portfolio-content.md 的 YAML frontmatter 与正文 */
+function splitFrontmatter(raw: string): { meta: ProjectMeta; body: string } {
+	const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+	if (!match) return { meta: {}, body: raw };
+
+	const meta: Record<string, string> = {};
+	for (const line of match[1].split(/\r?\n/)) {
+		const kv = line.match(/^(\w+):\s*"?(.*?)"?\s*$/);
+		if (kv) meta[kv[1].toLowerCase()] = kv[2];
+	}
+	return { meta: meta as ProjectMeta, body: match[2] };
 }
 
-/** 从 02-storyline 的 Dribbble 存档 HTML 中提取原始页面链接 */
-function getDribbbleUrl(projectDir: string): string | undefined {
-	const storylinePath = publicPathToFilePath(`${projectDir}/02-storyline`);
-	if (!existsSync(storylinePath)) return undefined;
-
-	const archive = readdirSync(storylinePath).find(
-		(fileName) => fileName.toLowerCase().endsWith('.html') && statSync(join(storylinePath, fileName)).isFile()
-	);
-	if (!archive) return undefined;
-
-	const html = readFileSync(join(storylinePath, archive), 'utf-8');
-	// 优先取作品页（/shots/...）链接，避免误取个人主页
-	const match =
-		html.match(/<link[^>]+rel="canonical"[^>]+href="(https:\/\/dribbble\.com\/shots\/[^"?]+)"/i) ??
-		html.match(/property="og:url"[^>]*content="(https:\/\/dribbble\.com\/shots\/[^"?]+)"/i) ??
-		html.match(/"(https:\/\/dribbble\.com\/shots\/[\w-]+)"/i);
-	return match?.[1];
+/** 从正文 Links 区的 [Dribbble](url) 提取作品页链接 */
+function extractDribbbleUrl(body: string): string | undefined {
+	return body.match(/\[dribbble\]\((https:\/\/dribbble\.com\/[^)]+)\)/i)?.[1];
 }
 
 export function getProjectDetails(): ProjectDetail[] {
 	return getProjects().map((project) => {
-		const contributionFile = publicPathToFilePath(`${project.projectDir}/03-ea-contribution/ea-contribution.txt`);
-		const contributionText = existsSync(contributionFile) ? readFileSync(contributionFile, 'utf-8') : '';
+		const file = publicPathToFilePath(`${project.projectDir}/03-ea-contribution/portfolio-content.md`);
+		const raw = existsSync(file) ? readFileSync(file, 'utf-8') : '';
+		const { meta, body } = splitFrontmatter(raw);
 
 		return {
 			...project,
 			figures: getFigures(project.projectDir),
-			blocks: parseContribution(contributionText),
-			dribbbleUrl: getDribbbleUrl(project.projectDir),
+			blocks: parseMarkdownBlocks(body),
+			meta,
+			dribbbleUrl: extractDribbbleUrl(body),
 		};
 	});
 }
 
-/** 读取 public/content/ 下的版块文字（identity / vision / expertise-areas / development） */
-export function getSectionText(name: string) {
+/** 版块文字的结构化块，对应 Markdown */
+export type SectionBlock =
+	| { type: 'hr' }
+	| { type: 'h2'; text: string }
+	| { type: 'h3'; text: string }
+	| { type: 'quote'; text: string }
+	| { type: 'subhead'; text: string }
+	| { type: 'list'; items: string[] }
+	| { type: 'para'; text: string };
+
+/**
+ * 把一段 Markdown 解析为结构化块。
+ * 支持：`## / ###` 标题、`---` 分隔线、`> 引言`、`- 列表`、
+ * 整行 `**加粗**`（小标题）、普通段落（段内 `**加粗**`、`[链接](url)` 保留）。
+ * 首行 `# 大标题` 会被跳过（页面另有大标题）。
+ */
+export function parseMarkdownBlocks(raw: string): SectionBlock[] {
+	return raw
+		.split(/\r?\n\s*\r?\n/) // 按空行分块
+		.map((block) => block.trim())
+		.filter((block) => Boolean(block) && !block.startsWith('（在此粘贴'))
+		.flatMap((block): SectionBlock[] => {
+			if (/^#\s/.test(block)) return []; // 跳过一级大标题
+			if (/^---+$/.test(block)) return [{ type: 'hr' }];
+			if (/^##\s/.test(block)) return [{ type: 'h2', text: block.replace(/^##\s+/, '') }];
+			if (/^###\s/.test(block)) return [{ type: 'h3', text: block.replace(/^###\s+/, '') }];
+			if (/^>\s/.test(block)) return [{ type: 'quote', text: block.replace(/^>\s?/gm, '').trim() }];
+			if (/^[-*]\s/.test(block)) {
+				const items = block.split(/\r?\n/).map((line) => line.replace(/^[-*]\s+/, '').trim()).filter(Boolean);
+				return [{ type: 'list', items }];
+			}
+			// 多行块（如 manifesto 的「**小标题** + 说明」）可能含一个加粗首行
+			const out: SectionBlock[] = [];
+			let paraBuffer: string[] = [];
+			const flush = () => {
+				if (paraBuffer.length) {
+					out.push({ type: 'para', text: paraBuffer.join(' ') });
+					paraBuffer = [];
+				}
+			};
+			for (const line of block.split(/\r?\n/)) {
+				const trimmed = line.trim();
+				if (/^\*\*[^*]+\*\*$/.test(trimmed)) {
+					flush();
+					out.push({ type: 'subhead', text: trimmed.replace(/^\*\*|\*\*$/g, '') });
+				} else {
+					paraBuffer.push(trimmed);
+				}
+			}
+			flush();
+			return out;
+		});
+}
+
+/** 读取 public/content/<name>.txt 并解析为结构化块 */
+export function getSectionBlocks(name: string): SectionBlock[] {
 	const filePath = join(process.cwd(), 'public', 'content', `${name}.txt`);
 	if (!existsSync(filePath)) return [];
-	return readFileSync(filePath, 'utf-8')
-		.trim()
-		.split(/\r?\n+/)
-		.map((paragraph) => paragraph.trim())
-		.filter((paragraph) => Boolean(paragraph) && !paragraph.startsWith('（在此粘贴'));
+	return parseMarkdownBlocks(readFileSync(filePath, 'utf-8'));
+}
+
+const escapeHtml = (value: string) =>
+	value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+/**
+ * 段内 Markdown → HTML（先转义）：
+ * `[文本](url)` → 链接、`**加粗**` → strong、脚注 `[^N]` 与图号 `[N]` → 上标。
+ */
+export function renderInline(text: string) {
+	return escapeHtml(text)
+		.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
+		.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+		.replace(/\[\^(\d+)\]/g, '<sup class="ref-mark">$1</sup>')
+		.replace(/\[(\d+)\]/g, '<sup class="fig-mark">$1</sup>');
 }
 
 /** EA 名称 → 色条代码（颜色见全局样式 .ea-*） */
